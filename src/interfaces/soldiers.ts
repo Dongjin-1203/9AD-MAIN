@@ -9,7 +9,7 @@ export const Soldier = z.object({
   sn: z
     .string()
     .trim()
-    .regex(/^\d{2}-\d{5,8}$/, { message: '유효하지 않은 군번 형식입니다' }),
+    .regex(/^(\d{2}-\d{5,8}|\d{6})$/, {message: '유효하지 않은 군번 또는 군무원 순번 형식입니다',}),
 
   // 비밀번호 (Password)
   password: z
