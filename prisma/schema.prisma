@@ -7,24 +7,6 @@ datasource db {
   url      = env("POSTGRES_URL")
 }
 
-model overtimes {
-  id                 Int       @id @default(autoincrement())
-  created_at         DateTime  @default(now()) @db.Timestamp(0)
-  giver_id           String    @db.VarChar(11)
-  receiver_id        String    @db.VarChar(11)
-  approver_id        String    @db.VarChar(11)
-  verified_at        DateTime? @db.Timestamp(0)
-  approved_at        DateTime? @db.Timestamp(0)
-  started_at         DateTime  @db.Timestamp(0)
-  ended_at           DateTime  @db.Timestamp(0)
-  value              Int       @db.SmallInt
-  reason             String?   @db.VarChar(1000)
-  rejected_at        DateTime? @db.Timestamp(0)
-  rejected_reason    String?   @db.VarChar(1000)
-  disapproved_at     DateTime? @db.Timestamp(0)
-  disapproved_reason String?   @db.VarChar(1000)
-}
-
 model permissions {
   id          Int      @id @default(autoincrement())
   soldiers_id String   @db.VarChar(11)
@@ -73,15 +55,6 @@ model soldiers {
   deleted_at  DateTime?     @db.Timestamp(0)
   rejected_at DateTime?     @db.Timestamp(0)
   deleted_by  String?       @db.VarChar(36)
-}
-
-model used_overtimes {
-  id           Int      @id @default(autoincrement())
-  user_id      String   @db.VarChar(11)
-  recorded_by  String   @db.VarChar(11)
-  value        Int
-  reason       String?
-  created_at   DateTime @default(now())
 }
 
 enum soldiers_type {

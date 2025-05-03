@@ -180,9 +180,6 @@ export default function MyProfilePage({
       ): null}
       {(!isViewingMine && hasPermission(current!?.permissions, ['Admin', 'Commander'])) ? (
         <div className='pb-2'>
-          <Button href={`/overtimes?sn=${targetSoldier.sn}`}>
-            초과근무 내역 보기
-          </Button>
         </div>
       ): null}
       {isViewingMine ? <PasswordForm sn={sn} force={false}/> : null}

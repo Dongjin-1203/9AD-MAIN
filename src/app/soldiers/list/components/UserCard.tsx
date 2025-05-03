@@ -1,4 +1,4 @@
-import { fetchOvertimeSummary, fetchPointSummary } from '@/app/actions';
+import {fetchPointSummary } from '@/app/actions';
 import { Card, Row } from 'antd';
 import Link from 'next/link';
 import { useLayoutEffect, useState } from 'react';
@@ -11,12 +11,10 @@ export type UserCardProps = {
 
 export function UserCard({ type, sn, name }: UserCardProps) {
   const [pointData, setPointData] = useState<number | null>(null)
-  const [overtimeData, setOvertimeData] = useState<number | null>(null)
 
   useLayoutEffect(() => {
     if(type === 'enlisted'){
       fetchPointSummary(sn).then((d) => setPointData(d.merit+d.demerit));
-      fetchOvertimeSummary(sn).then((d) => setOvertimeData(d.overtime));
     }
   }, [type, sn]);
 
@@ -35,7 +33,6 @@ export function UserCard({ type, sn, name }: UserCardProps) {
           {type === 'enlisted'? <Row className='font-bold'>
             <p style={pointData! < 0 ? {color: '#cf1322'} : {color: '#3f8600'}}>{pointData}점</p>
             <p className='px-1'>{'|'}</p>
-            <p style={{color: '#3f8600', width: '70px'}}>{(overtimeData!/60).toFixed(2)}시간</p>
           </Row>
           : null}
         </div>

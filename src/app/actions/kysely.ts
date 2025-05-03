@@ -1,4 +1,4 @@
-import { Permissions, Point, PointTemplates, Soldier, UsedPoint, Overtimes, UsedOvertime } from '@/interfaces';
+import { Permissions, Point, PointTemplates, Soldier, UsedPoint} from '@/interfaces';
 import { Kysely, PostgresDialect } from 'kysely';
 import { Pool } from 'pg';
 
@@ -8,8 +8,6 @@ interface Database {
   permissions:     Permissions,
   point_templates: PointTemplates,
   used_points:     UsedPoint,
-  overtimes:       Overtimes,
-  used_overtimes:  UsedOvertime
 }
 
 export const kysely = new Kysely<Database>({
