@@ -1,3 +1,5 @@
+'use client';
+
 import { fetchPointTemplates } from '@/app/actions';
 import { Button, Input, Select } from 'antd';
 import { useEffect, useState } from 'react';
