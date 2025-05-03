@@ -41,9 +41,6 @@ export default function LoginPage() {
           rules={[{ required: true, message: '군번을 입력해주세요' }]}
         >
           <Input
-            ref={(ref) =>
-              withMask('99-99999[999]', { placeholder: '' })(ref?.input!)
-            }
             type='text'
             placeholder='군번'
             prefix={<UserOutlined />}
