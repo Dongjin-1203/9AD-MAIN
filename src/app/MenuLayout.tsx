@@ -28,9 +28,6 @@ const title = {
   '/points/redeem'    : '상점 사용',
   '/soldiers/list'    : '유저 관리',
   '/soldiers/signup'  : '회원가입 관리',
-  '/overtimes'        : '초과근무 관리',
-  '/overtimes/request': '초과근무 요청',
-  '/overtimes/redeem' : '초과근무 사용',
 };
 
 function renderTitle(pathname: string) {
@@ -149,38 +146,6 @@ export function MenuLayout({
                 {
                   key: '/points/redeem',
                   label: '상점 사용',
-                  icon: <DeleteOutlined />,
-                  onClick,
-                } : null,
-              ],
-            },
-            {
-              key: '/overtimes/#',
-              label: '초과근무',
-              icon: <LikeOutlined />,
-              children: [
-                {
-                  key: '/overtimes',
-                  label: '초과근무 관리',
-                  icon: <ContainerOutlined />,
-                  onClick,
-                },
-
-                data.type === 'enlisted' ?
-                {
-                  key: '/overtimes/request',
-                  label: '초과근무 요청',
-                  icon: <MailOutlined />,
-                  onClick,
-                } : null,
-
-                hasPermission(data.permissions, [
-                  'Admin',
-                  'Commander',
-                ]) ?
-                {
-                  key: '/overtimes/redeem',
-                  label: '초과근무 사용',
                   icon: <DeleteOutlined />,
                   onClick,
                 } : null,
