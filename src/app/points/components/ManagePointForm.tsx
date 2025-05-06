@@ -19,7 +19,6 @@ import locale from 'antd/es/date-picker/locale/ko_KR';
 import { useRouter } from 'next/navigation';
 import { useCallback, useEffect, useMemo, useState } from 'react';
 import { debounce } from 'lodash';
-import { PointTemplatesInput } from '../components';
 import { checkIfNco } from '../give/actions';
 import { UnitSelect } from '../components/UnitSelect';
 import type { UnitType } from '../components/UnitSelect'; // 중대 선택
@@ -134,17 +133,6 @@ export function ManagePointForm({ type }: ManagePointFormProps) {
           colon={false}
         >
           <UnitSelect onChange={setSelectedUnit} />
-        </Form.Item>
-        <Form.Item<string>>
-          <PointTemplatesInput
-            onChange={(reason, value) => {
-              form.setFieldValue('reason', reason);
-              if (value) {
-                setMerit(() => (value > 0 ? 1 : -1));
-                form.setFieldValue('value', Math.abs(value));
-              }
-            }}
-          />
         </Form.Item>
         <Form.Item<string>
           label={(type === 'request' ? '수여자' : '수령자') + (target !== '' ? `: ${target}` : '')}
