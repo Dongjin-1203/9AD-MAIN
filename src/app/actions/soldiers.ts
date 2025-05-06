@@ -205,7 +205,8 @@ export async function searchEnlisted(
     .execute();
 }
 
-export async function searchNco(query: string) {
+export async function searchNco(query: string,
+  unit?: 'headquarters' | 'security' | 'ammunition' | 'staff') {
   return kysely
     .selectFrom('soldiers')
     .where((eb) =>
