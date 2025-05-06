@@ -39,7 +39,7 @@ export function ManagePointForm({ type }: ManagePointFormProps) {
   const { message } = App.useApp();
   const [target, setTarget] = useState('')
   const [selectedUnit, setSelectedUnit] = useState<
-  'headquarters' | 'security' | 'ammunition'
+  'headquarters' | 'security' | 'ammunition' | undefined
 >(undefined);
 
 
