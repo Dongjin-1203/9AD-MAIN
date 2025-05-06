@@ -21,6 +21,8 @@ import { useCallback, useEffect, useMemo, useState } from 'react';
 import { debounce } from 'lodash';
 import { PointTemplatesInput } from '../components';
 import { checkIfNco } from '../give/actions';
+import { UnitSelect } from '../components/UnitSelect'; // 중대 선택
+
 
 export type ManagePointFormProps = {
   type: 'request' | 'give';
@@ -36,6 +38,8 @@ export function ManagePointForm({ type }: ManagePointFormProps) {
   const [searching, setSearching] = useState(false);
   const { message } = App.useApp();
   const [target, setTarget] = useState('')
+  const [selectedUnit, setSelectedUnit] = useState<string | null>(null);
+
 
   const renderPlaceholder = useCallback(
     ({ name, sn }: { name: string; sn: string }) => (
@@ -67,14 +71,13 @@ export function ManagePointForm({ type }: ManagePointFormProps) {
 
   useEffect(() => {
     setSearching(true);
-    const searchFn =
-      type === 'request' ? searchNco : searchEnlisted;
-
-    searchFn(query).then((value) => {
+    const searchFn = type === 'request' ? searchNco : searchEnlisted;
+  
+    searchFn(query, selectedUnit).then((value) => {
       setSearching(false);
       setOptions(value);
     });
-  }, [query, type]);
+  }, [query, type, selectedUnit]);
 
   const handleSubmit = useCallback(
     async (newForm: any) => {
@@ -123,6 +126,12 @@ export function ManagePointForm({ type }: ManagePointFormProps) {
             inputReadOnly
             locale={locale}
           />
+        </Form.Item>
+        <Form.Item
+          label="중대 선택"
+          colon={false}
+        >
+          <UnitSelect onChange={setSelectedUnit} />
         </Form.Item>
         <Form.Item<string>>
           <PointTemplatesInput

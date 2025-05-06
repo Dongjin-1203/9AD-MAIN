@@ -62,7 +62,7 @@ export function PointTemplatesInput({ onChange }: PointTemplatesInputProps) {
       size="large"
       showSearch
       options={options}
-      placeholder="중대 선택택"
+      placeholder="중대 선택"
       onSelect={(value) => onChange?.(value)}
       optionLabelProp="label"
       style={{ width: '100%' }}

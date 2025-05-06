@@ -179,7 +179,7 @@ export async function GroupSoldiers(type: string) {
   return { headquarters, security, ammunition, staff, unclassified };
 }
 
-export async function searchEnlisted(query: string) {
+export async function searchEnlisted(query: string, unit?: string | null) {
   return kysely
     .selectFrom('soldiers')
     .where((eb) =>
@@ -194,6 +194,7 @@ export async function searchEnlisted(query: string) {
           eb('verified_at', 'is not', null),
         ]),
         eb('deleted_at', 'is', null),
+        ...(unit ? [eb('unit', '=', unit)] : []),
       ]),
     )
     .select(['sn', 'name'])
@@ -215,6 +216,7 @@ export async function searchNco(query: string) {
           eb('verified_at', 'is not', null),
         ]),
         eb('deleted_at', 'is', null),
+        ...(unit ? [eb('unit', '=', unit)] : []),
       ]),
     )
     .select(['sn', 'name'])
