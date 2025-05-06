@@ -22,6 +22,7 @@ import { debounce } from 'lodash';
 import { checkIfNco } from '../give/actions';
 import { UnitSelect } from '../components/UnitSelect';
 import type { UnitType } from '../components/UnitSelect'; // 중대 선택
+import { PointTemplatesInput } from '../components/PointTemplatesInput'; // 상벌점
 
 
 export type ManagePointFormProps = {
@@ -162,36 +163,39 @@ export function ManagePointForm({ type }: ManagePointFormProps) {
             <Input.Search loading={searching} />
           </AutoComplete>
         </Form.Item>
-        <Form.Item<number>
-          name='value'
-          rules={[{ required: true, message: '상벌점을 입력해주세요' }]}
+        <Form.Item
+          label="상벌점 유형"
+          colon={false}
         >
-          <InputNumber
-            min={1}
-            controls
-            addonAfter='점'
-            type='number'
-            inputMode='numeric'
-            addonBefore={
-              <Select
-                value={merit}
-                onChange={useCallback((value: number) => setMerit(value), [])}
-              >
-                <Select.Option value={1}>상점</Select.Option>
-                <Select.Option value={-1}>벌점</Select.Option>
-              </Select>
-            }
-          />
+          <Select
+            value={merit}
+            onChange={(value) => setMerit(value)}
+          >
+            <Select.Option value={1}>상점</Select.Option>
+            <Select.Option value={-1}>벌점</Select.Option>
+          </Select>
         </Form.Item>
         <Form.Item<string>
           name='reason'
-          rules={[{ required: true, message: '지급이유를 입력해주세요' }]}
+          rules={[{ required: true, message: '세부사사유를 입력해주세요' }]}
         >
           <Input.TextArea
             showCount
             maxLength={500}
-            placeholder='상벌점 지급 이유'
+            placeholder='세부사유'
             style={{ height: 150 }}
+          />
+        </Form.Item>
+        <Form.Item<string>
+          label="사유 선택"
+          colon={false}
+        >
+          <PointTemplatesInput
+            type={merit === 1 ? 'merit' : 'demerit'}
+            onChange={(reason, score) => {
+              form.setFieldValue('reason', reason);
+              form.setFieldValue('value', Math.abs(score));
+            }}
           />
         </Form.Item>
         <Form.Item>
