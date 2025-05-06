@@ -181,7 +181,7 @@ export async function GroupSoldiers(type: string) {
 
 export async function searchEnlisted(
   query: string,
-  unit?: 'headquarters' | 'security' | 'ammunition' | 'staff'
+  unit?: 'headquarters' | 'security' | 'ammunition'
 )
  {
   return kysely
@@ -206,7 +206,7 @@ export async function searchEnlisted(
 }
 
 export async function searchNco(query: string,
-  unit?: 'headquarters' | 'security' | 'ammunition' | 'staff') {
+  unit?: 'headquarters' | 'security' | 'ammunition') {
   return kysely
     .selectFrom('soldiers')
     .where((eb) =>

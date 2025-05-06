@@ -21,7 +21,6 @@ export function UnitSelect({ onChange }: UnitSelectProps) {
         <Select.Option value="headquarters">본부</Select.Option>
         <Select.Option value="security">경비</Select.Option>
         <Select.Option value="ammunition">탄약</Select.Option>
-        <Select.Option value="staff">참모</Select.Option>
       </Select>
     </Form.Item>
   );

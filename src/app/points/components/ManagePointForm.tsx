@@ -38,7 +38,9 @@ export function ManagePointForm({ type }: ManagePointFormProps) {
   const [searching, setSearching] = useState(false);
   const { message } = App.useApp();
   const [target, setTarget] = useState('')
-  const [selectedUnit, setSelectedUnit] = useState<string | null>(null);
+  const [selectedUnit, setSelectedUnit] = useState<
+  'headquarters' | 'security' | 'ammunition' | 'staff' | undefined
+>(undefined);
 
 
   const renderPlaceholder = useCallback(
