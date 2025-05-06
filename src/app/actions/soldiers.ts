@@ -179,7 +179,11 @@ export async function GroupSoldiers(type: string) {
   return { headquarters, security, ammunition, staff, unclassified };
 }
 
-export async function searchEnlisted(query: string, unit?: string | null) {
+export async function searchEnlisted(
+  query: string,
+  unit?: 'headquarters' | 'security' | 'ammunition' | 'staff'
+)
+ {
   return kysely
     .selectFrom('soldiers')
     .where((eb) =>
