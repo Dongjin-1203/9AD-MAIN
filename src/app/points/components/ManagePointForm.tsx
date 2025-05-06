@@ -207,20 +207,13 @@ export function ManagePointForm({ type }: ManagePointFormProps) {
           rules={[{ required: true, message: '상벌점을 입력해주세요' }]}
         >
           <InputNumber
-            min={1}
-            controls
+            readOnly
+            controls={false}
+            value={form.getFieldValue('value')}
             addonAfter='점'
             type='number'
             inputMode='numeric'
-            addonBefore={
-              <Select
-                value={merit}
-                onChange={(value: number) => setMerit(value)}
-              >
-                <Select.Option value={1}>상점</Select.Option>
-                <Select.Option value={-1}>벌점</Select.Option>
-              </Select>
-            }
+            addonBefore={<span>{merit === 1 ? '상점' : '벌점'}</span>}
           />
         </Form.Item>
         <Form.Item<string>
