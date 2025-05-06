@@ -21,6 +21,7 @@ import { useCallback, useEffect, useMemo, useState } from 'react';
 import { debounce } from 'lodash';
 import { PointTemplatesInput } from '../components';
 import { checkIfNco } from '../give/actions';
+import { UnitSelect } from '../components/UnitSelect';
 import type { UnitType } from '../components/UnitSelect'; // 중대 선택
 
 
