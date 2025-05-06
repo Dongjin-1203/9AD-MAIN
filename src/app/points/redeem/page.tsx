@@ -111,7 +111,7 @@ export default function UsePointFormPage() {
           label={'사용 대상자' + (target !== '' ? `: ${target}` : '')}
           name={'userId'}
           rules={[
-            { required: true, message: '수령자를 입력해주세요' },
+            { required: true, message: '사용용자를 입력해주세요' },
             {
               pattern: /^[0-9]{2}-[0-9]{5,8}$/,
               message: '잘못된 군번입니다',
@@ -157,14 +157,17 @@ export default function UsePointFormPage() {
             type='number'
             inputMode='numeric'
             onChange={(value) => {
-              if(value != null && value == 16){
+              if(value != null && value == 25){
                 form.setFieldValue('reason', '포상 외출 사용')
               }
-              else if(value != null && value == 32){
+              else if(value != null && value == 50){
                 form.setFieldValue('reason', '포상 외박 사용')
               }
-              else if(value != null && value % 48 == 0){
-                form.setFieldValue('reason', `포상 휴가 ${Math.floor(value/48)}일 사용`)
+              else if(value != null && value == 90){
+                form.setFieldValue('reason', `포상 휴가 3일 사용`)
+              }
+              else if(value != null && value == 120){
+                form.setFieldValue('reason', `포상 휴가 4일 사용`)
               }
               else{
                 form.setFieldValue('reason', null)
