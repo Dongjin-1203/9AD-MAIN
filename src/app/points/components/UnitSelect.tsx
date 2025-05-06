@@ -2,8 +2,10 @@
 
 import { Select, Form } from 'antd';
 
+export type UnitType = 'headquarters' | 'security' | 'ammunition';
+
 export type UnitSelectProps = {
-  onChange?: (unit: string) => void;
+  onChange?: (unit: UnitType | undefined) => void;
 };
 
 export function UnitSelect({ onChange }: UnitSelectProps) {
@@ -13,15 +15,16 @@ export function UnitSelect({ onChange }: UnitSelectProps) {
       label="중대 선택"
       rules={[{ required: true, message: '중대를 선택해주세요' }]}
     >
-      <Select
+      <Select<UnitType>
         placeholder="중대를 선택하세요"
         onChange={(value) => onChange?.(value)}
         allowClear
-      >
-        <Select.Option value="headquarters">본부</Select.Option>
-        <Select.Option value="security">경비</Select.Option>
-        <Select.Option value="ammunition">탄약</Select.Option>
-      </Select>
+        options={[
+          { label: '본부', value: 'headquarters' },
+          { label: '경비', value: 'security' },
+          { label: '탄약', value: 'ammunition' },
+        ]}
+      />
     </Form.Item>
   );
 }

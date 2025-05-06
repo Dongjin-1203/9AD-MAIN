@@ -21,7 +21,7 @@ import { useCallback, useEffect, useMemo, useState } from 'react';
 import { debounce } from 'lodash';
 import { PointTemplatesInput } from '../components';
 import { checkIfNco } from '../give/actions';
-import { UnitSelect } from '../components/UnitSelect'; // 중대 선택
+import type { UnitType } from '../components/UnitSelect'; // 중대 선택
 
 
 export type ManagePointFormProps = {
@@ -38,9 +38,8 @@ export function ManagePointForm({ type }: ManagePointFormProps) {
   const [searching, setSearching] = useState(false);
   const { message } = App.useApp();
   const [target, setTarget] = useState('')
-  const [selectedUnit, setSelectedUnit] = useState<
-  'headquarters' | 'security' | 'ammunition' | undefined
->(undefined);
+  const [selectedUnit, setSelectedUnit] = useState<UnitType | undefined>(undefined);
+
 
 
   const renderPlaceholder = useCallback(
