@@ -176,17 +176,6 @@ export function ManagePointForm({ type }: ManagePointFormProps) {
           </Select>
         </Form.Item>
         <Form.Item<string>
-          name='reason'
-          rules={[{ required: true, message: '세부사사유를 입력해주세요' }]}
-        >
-          <Input.TextArea
-            showCount
-            maxLength={500}
-            placeholder='세부사유'
-            style={{ height: 150 }}
-          />
-        </Form.Item>
-        <Form.Item<string>
           label="사유 선택"
           colon={false}
         >
