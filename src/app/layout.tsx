@@ -5,9 +5,9 @@ import './globals.css';
 import { AntDesignRegistry } from './registry';
 
 export const metadata: Metadata = {
-  title: '병영생활 관리',
-  description: '제9탄약창 병영생활 관리',
-  authors: { name: '9ammu dev team' },
+  title: '9ood M&d',
+  description: 'The 9ood! M&d',
+  authors: { name: '제작: 본부중대장' },
 };
 
 export function generateViewport() {
