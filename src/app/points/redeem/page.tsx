@@ -169,6 +169,9 @@ export default function UsePointFormPage() {
               else if(value != null && value == 120){
                 form.setFieldValue('reason', `포상 휴가 4일 사용`)
               }
+              else if(value != null && value == availablePoints){
+                form.setFieldValue('reason', `징계위원회 회부로 인한 상점 초기화`)
+              }
               else{
                 form.setFieldValue('reason', null)
               }
