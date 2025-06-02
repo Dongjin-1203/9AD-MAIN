@@ -15,7 +15,7 @@ import {
   InputNumber,
   Select,
 } from 'antd';
-import dayjs from 'dayjs';
+import locale from 'antd/es/date-picker/locale/ko_KR';
 import 'dayjs/locale/ko';
 import { useRouter } from 'next/navigation';
 import { UnitSelect } from '../components/UnitSelect';
