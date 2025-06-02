@@ -18,6 +18,7 @@ import {
 import dayjs from 'dayjs';
 import 'dayjs/locale/ko';
 import { useRouter } from 'next/navigation';
+import { UnitSelect } from '../components/UnitSelect';
 import { useCallback, useEffect, useLayoutEffect, useMemo, useState } from 'react';
 import { checkIfNco } from '../give/actions';
 import { debounce } from 'lodash';
@@ -36,6 +37,7 @@ export default function UsePointFormPage() {
   const [options, setOptions] = useState<{ name: string; sn: string }[]>([]);
   const [loading, setLoading] = useState(false);
   const [searching, setSearching] = useState(false);
+  const [selectedUnit, setSelectedUnit] = useState<UnitType | undefined>();
   const [availablePoints, setAvailablePoints] = useState<number | null>();
   const { message } = App.useApp();
   const [target, setTarget] = useState('');
@@ -106,12 +108,11 @@ export default function UsePointFormPage() {
           label='사용 일자'
           colon={false}
         >
-          <DatePicker
-            defaultValue={dayjs().locale('ko')}
-            disabled
-            picker='date'
-            inputReadOnly
-          />
+          <DatePicker locale={locale} inputReadOnly style={{ width: '100%' }} />
+        </Form.Item>
+
+        <Form.Item label="중대 선택">
+          <UnitSelect onChange={setSelectedUnit} />
         </Form.Item>
 
         <Form.Item<string>
@@ -126,17 +127,21 @@ export default function UsePointFormPage() {
           ]}
         >
           <AutoComplete
+            onSearch={handleSearch}
             options={options.map((t) => ({
               value: t.sn,
-              label: renderPlaceholder(t),
+              label: (
+                <div className="flex justify-between">
+                  <span>{t.name}</span>
+                  <span>{t.sn}</span>
+                </div>
+              ),
             }))}
-            onChange={async (value: string) => {
-              const selectedOption = options.find((t) => t.sn === value);
-              setTarget(selectedOption ? selectedOption.name : '');
-              const { merit, usedMerit, demerit } = await fetchPointSummary(value);
-              setAvailablePoints(merit - usedMerit + demerit);
+            onChange={(value) => {
+              const selected = options.find((t) => t.sn === value);
+              setTarget(selected ? selected.name : '');
             }}
-            onSearch={handleSearch}
+            getPopupContainer={(c) => c.parentElement}
           >
             <Input.Search loading={searching} />
           </AutoComplete>
