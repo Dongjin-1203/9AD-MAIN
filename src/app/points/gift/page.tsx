@@ -1,60 +1,60 @@
 'use client';
 
-import { useState, useEffect, useMemo } from 'react';
 import {
-  Form,
-  DatePicker,
-  Select,
-  Input,
-  Button,
-  Typography,
-  InputNumber,
+  searchEnlisted
+} from '@/app/actions';
+import {
+  App,
   AutoComplete,
+  Button,
+  DatePicker,
+  Form,
+  Input,
+  InputNumber,
+  Select,
+  Typography
 } from 'antd';
 import locale from 'antd/es/date-picker/locale/ko_KR';
+import { useCallback, useEffect, useMemo, useState } from 'react';
+import { debounce } from 'lodash';
 import dayjs from 'dayjs';
-
-type Soldier = {
-  name: string;
-  sn: string; // 군번
-  unit: string;
-};
-
-// 임시 병사 목록
-const soldiers: Soldier[] = [
-  { name: '김상병', sn: '23-12345', unit: 'headquarters' },
-  { name: '박일병', sn: '23-23456', unit: 'security' },
-  { name: '이병장', sn: '22-98765', unit: 'ammunition' },
-];
+import { UnitSelect } from '../components/UnitSelect';
+import type { UnitType } from '../components/UnitSelect';
 
 export default function GiveMassPointPage() {
   const [form] = Form.useForm();
   const [loading, setLoading] = useState(false);
   const [merit, setMerit] = useState<1 | -1>(1);
-  const [selectedUnit, setSelectedUnit] = useState<string>();
-  const [soldierOptions, setSoldierOptions] = useState<Soldier[]>([]);
+  const [selectedUnit, setSelectedUnit] = useState<UnitType | undefined>();
   const [query, setQuery] = useState('');
+  const [options, setOptions] = useState<{ name: string; sn: string }[]>([]);
+  const [target, setTarget] = useState('');
+  const [searching, setSearching] = useState(false);
+  const { message } = App.useApp();
 
+  // 병사 검색 디바운스
+  const debouncedSearch = useMemo(() =>
+    debounce((value: string) => {
+      setQuery(value);
+    }, 300), []);
+
+  const handleSearch = (value: string) => {
+    debouncedSearch(value);
+  };
+
+  // 병사 목록 불러오기
   useEffect(() => {
-    if (selectedUnit) {
-      const filtered = soldiers.filter((s) => s.unit === selectedUnit);
-      setSoldierOptions(filtered);
-    }
-  }, [selectedUnit]);
-
-  const filteredOptions = useMemo(() => {
-    return soldierOptions
-      .filter((s) =>
-        s.name.includes(query) || s.sn.includes(query)
-      )
-      .map((s) => ({
-        label: `${s.name} (${s.sn})`,
-        value: s.sn,
-      }));
-  }, [query, soldierOptions]);
+    if (!selectedUnit) return;
+    setSearching(true);
+    searchEnlisted(query, selectedUnit).then((value) => {
+      setSearching(false);
+      setOptions(value);
+    });
+  }, [query, selectedUnit]);
 
   const handleSubmit = async (values: any) => {
     setLoading(true);
+
     const payload = {
       ...values,
       givenAt: values.givenAt.format('YYYY-MM-DD'),
@@ -63,7 +63,7 @@ export default function GiveMassPointPage() {
 
     try {
       console.log('제출 데이터:', payload);
-      // TODO: createPoint API 호출 등
+      // TODO: createPoint API 호출
     } finally {
       setLoading(false);
     }
@@ -78,48 +78,51 @@ export default function GiveMassPointPage() {
         onFinish={handleSubmit}
         initialValues={{ givenAt: dayjs() }}
       >
+        {/* 1. 부여 일자 */}
         <Form.Item
           name="givenAt"
           label="부여 일자"
           rules={[{ required: true, message: '부여일자를 선택해주세요' }]}
         >
-          <DatePicker
-            locale={locale}
-            inputReadOnly
-            style={{ width: '100%' }}
-          />
+          <DatePicker locale={locale} inputReadOnly style={{ width: '100%' }} />
         </Form.Item>
 
-        <Form.Item
-          name="unit"
-          label="중대 선택"
-          rules={[{ required: true, message: '중대를 선택해주세요' }]}
-        >
-          <Select
-            placeholder="중대를 선택하세요"
-            onChange={setSelectedUnit}
-            allowClear
-          >
-            <Select.Option value="headquarters">본부</Select.Option>
-            <Select.Option value="security">경비</Select.Option>
-            <Select.Option value="ammunition">탄약</Select.Option>
-          </Select>
+        {/* 2. 중대 선택 */}
+        <Form.Item label="중대 선택">
+          <UnitSelect onChange={setSelectedUnit} />
         </Form.Item>
 
+        {/* 3. 수령자 선택 (AutoComplete) */}
         <Form.Item
-          name="receiver"
-          label="수령자 (이름 또는 군번)"
-          rules={[{ required: true, message: '수령자를 선택해주세요' }]}
+          name="receiverId"
+          label={`수령자${target ? `: ${target}` : ''}`}
+          rules={[
+            { required: true, message: '수령자를 입력해주세요' },
+            { pattern: /^[0-9]{2}-[0-9]{5,8}$/, message: '잘못된 군번입니다' },
+          ]}
         >
           <AutoComplete
-            options={filteredOptions}
-            onSearch={setQuery}
-            placeholder="예: 김상병 or 23-12345"
-            allowClear
-            style={{ width: '100%' }}
-          />
+            onSearch={handleSearch}
+            options={options.map((t) => ({
+              value: t.sn,
+              label: (
+                <div className="flex justify-between">
+                  <span>{t.name}</span>
+                  <span>{t.sn}</span>
+                </div>
+              ),
+            }))}
+            onChange={(value) => {
+              const selected = options.find((t) => t.sn === value);
+              setTarget(selected ? selected.name : '');
+            }}
+            getPopupContainer={(c) => c.parentElement}
+          >
+            <Input.Search loading={searching} />
+          </AutoComplete>
         </Form.Item>
 
+        {/* 4. 점수 입력 및 유형 */}
         <Form.Item
           label="점수 및 유형"
           required
@@ -142,6 +145,7 @@ export default function GiveMassPointPage() {
           </Select>
         </Form.Item>
 
+        {/* 5. 사유 입력 */}
         <Form.Item
           name="reason"
           label="사유"
@@ -150,6 +154,7 @@ export default function GiveMassPointPage() {
           <Input.TextArea rows={4} placeholder="상벌점 부여 사유를 입력하세요" />
         </Form.Item>
 
+        {/* 6. 제출 */}
         <Form.Item>
           <Button type="primary" htmlType="submit" loading={loading}>
             상벌점 부여
