@@ -25,6 +25,7 @@ const title = {
   '/points'           : '상점 관리',
   '/points/request'   : '상점 요청',
   '/points/give'      : '상점 부여',
+  '/points/gift'      : '상벌점 소급',
   '/points/redeem'    : '상점 사용',
   '/soldiers/list'    : '유저 관리',
   '/soldiers/signup'  : '회원가입 관리',
