@@ -68,7 +68,7 @@ export default function UsePointFormPage() {
 
   // ✅ 수정된 부분: selectedUnit 포함하여 병사 검색
   useEffect(() => {
-    if (!query) return;
+    if (!selectedUnit) return;
 
     setSearching(true);
     searchEnlisted(query, selectedUnit).then((value) => {
@@ -127,13 +127,16 @@ export default function UsePointFormPage() {
             onSearch={handleSearch}
             options={options.map((t) => ({
               value: t.sn,
-              label: renderPlaceholder(t),
+              label: (
+                <div className="flex justify-between">
+                  <span>{t.name}</span>
+                  <span>{t.sn}</span>
+                </div>
+              ),
             }))}
-            onChange={async (value: string) => {
+            onChange={(value) => {
               const selected = options.find((t) => t.sn === value);
               setTarget(selected ? selected.name : '');
-              const { merit, usedMerit, demerit } = await fetchPointSummary(value);
-              setAvailablePoints(merit - usedMerit + demerit);
             }}
             getPopupContainer={(c) => c.parentElement}
           >
