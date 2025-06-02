@@ -139,6 +139,13 @@ export function MenuLayout({
                   onClick,
                 } : null,
 
+                {
+                  key: '/points/gift',
+                  label: '상벌점 소급',
+                  icon: <SendOutlined />,
+                  onClick,
+                } : null,
+
                 hasPermission(data.permissions, [
                   'Admin',
                   'Commander',
