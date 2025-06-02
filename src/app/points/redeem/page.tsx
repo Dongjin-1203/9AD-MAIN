@@ -13,6 +13,7 @@ import {
   Form,
   Input,
   InputNumber,
+  Select,
 } from 'antd';
 import dayjs from 'dayjs';
 import 'dayjs/locale/ko';
@@ -20,6 +21,13 @@ import { useRouter } from 'next/navigation';
 import { useCallback, useEffect, useLayoutEffect, useMemo, useState } from 'react';
 import { checkIfNco } from '../give/actions';
 import { debounce } from 'lodash';
+
+const usageTemplates = [
+  { label: '포상 외출 사용', value: 25 },
+  { label: '포상 외박 사용', value: 50 },
+  { label: '보상 휴가 1일 사용', value: 50 },
+  { label: '징계위원회 회부로 인한 상점 초기화', value: null }, // null은 전체 사용
+];
 
 export default function UsePointFormPage() {
   const [form] = Form.useForm();
@@ -30,7 +38,7 @@ export default function UsePointFormPage() {
   const [searching, setSearching] = useState(false);
   const [availablePoints, setAvailablePoints] = useState<number | null>();
   const { message } = App.useApp();
-  const [target, setTarget] = useState('')
+  const [target, setTarget] = useState('');
 
   const renderPlaceholder = useCallback(
     ({ name, sn }: { name: string; sn: string }) => (
@@ -77,9 +85,10 @@ export default function UsePointFormPage() {
         .then(({ message: newMessage }) => {
           if (newMessage) {
             message.error(newMessage);
+          } else {
+            message.success('상점을 성공적으로 사용했습니다');
+            router.push('/points');
           }
-          message.success('상점을 성공적으로 사용했습니다');
-          router.push('/points');
         })
         .finally(() => {
           setLoading(false);
@@ -91,13 +100,10 @@ export default function UsePointFormPage() {
   return (
     <div className='px-4'>
       <div className='my-5' />
-      <Form
-        form={form}
-        onFinish={handleSubmit}
-      >
+      <Form form={form} onFinish={handleSubmit}>
         <Form.Item
           name='givenAt'
-          label='받은 날짜'
+          label='사용 일자'
           colon={false}
         >
           <DatePicker
@@ -107,9 +113,10 @@ export default function UsePointFormPage() {
             inputReadOnly
           />
         </Form.Item>
+
         <Form.Item<string>
           label={'사용 대상자' + (target !== '' ? `: ${target}` : '')}
-          name={'userId'}
+          name='userId'
           rules={[
             { required: true, message: '사용용자를 입력해주세요' },
             {
@@ -125,7 +132,7 @@ export default function UsePointFormPage() {
             }))}
             onChange={async (value: string) => {
               const selectedOption = options.find((t) => t.sn === value);
-              setTarget(selectedOption ? selectedOption.name : ''); // 선택된 sn에 대응하는 name 설정
+              setTarget(selectedOption ? selectedOption.name : '');
               const { merit, usedMerit, demerit } = await fetchPointSummary(value);
               setAvailablePoints(merit - usedMerit + demerit);
             }}
@@ -134,14 +141,44 @@ export default function UsePointFormPage() {
             <Input.Search loading={searching} />
           </AutoComplete>
         </Form.Item>
+
+        <Form.Item
+          label='사유 선택'
+          colon={false}
+          rules={[{ required: true, message: '사유를 선택해주세요' }]}
+        >
+          <Select
+            placeholder='사유를 선택하세요'
+            onChange={(value: string) => {
+              const selected = usageTemplates.find(t => t.label === value);
+              form.setFieldValue('reason', selected?.label);
+              if (selected?.value === null && availablePoints != null) {
+                form.setFieldValue('value', availablePoints);
+              } else if (selected?.value != null) {
+                form.setFieldValue('value', selected.value);
+              }
+            }}
+            options={usageTemplates.map(t => ({
+              label: t.label,
+              value: t.label,
+            }))}
+          />
+        </Form.Item>
+
         <Form.Item<number>
           name='value'
           rules={[
-            { required: true, message: '상벌점을 입력해주세요' },
+            { required: true, message: '상점을 입력해주세요' },
             {
               validator: (_, value) => {
-                if (value != null && availablePoints != null && value > availablePoints) {
-                  return Promise.reject(new Error('입력 값이 사용 가능한 상점을 초과했습니다.'));
+                if (
+                  value != null &&
+                  availablePoints != null &&
+                  value > availablePoints
+                ) {
+                  return Promise.reject(
+                    new Error('입력 값이 사용 가능한 상점을 초과했습니다.'),
+                  );
                 }
                 return Promise.resolve();
               },
@@ -156,39 +193,16 @@ export default function UsePointFormPage() {
             }
             type='number'
             inputMode='numeric'
-            onChange={(value) => {
-              if(value != null && value == 25){
-                form.setFieldValue('reason', '포상 외출 사용')
-              }
-              else if(value != null && value == 50){
-                form.setFieldValue('reason', '포상 외박 사용')
-              }
-              else if(value != null && value == 90){
-                form.setFieldValue('reason', `포상 휴가 3일 사용`)
-              }
-              else if(value != null && value == 120){
-                form.setFieldValue('reason', `포상 휴가 4일 사용`)
-              }
-              else if(value != null && value == availablePoints){
-                form.setFieldValue('reason', `징계위원회 회부로 인한 상점 초기화`)
-              }
-              else{
-                form.setFieldValue('reason', null)
-              }
-            }}
           />
         </Form.Item>
+
         <Form.Item<string>
           name='reason'
-          rules={[{ required: true, message: '지급이유를 입력해주세요' }]}
+          hidden
         >
-          <Input.TextArea
-            showCount
-            maxLength={500}
-            placeholder='상벌점 사용 이유'
-            style={{ height: 150 }}
-          />
+          <Input type='hidden' />
         </Form.Item>
+
         <Form.Item>
           <Button
             ghost={false}
