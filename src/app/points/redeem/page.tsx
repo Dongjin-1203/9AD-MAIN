@@ -19,6 +19,7 @@ import dayjs from 'dayjs';
 import 'dayjs/locale/ko';
 import { useRouter } from 'next/navigation';
 import { UnitSelect } from '../components/UnitSelect';
+import type { UnitType } from '../components/UnitSelect';
 import { useCallback, useEffect, useLayoutEffect, useMemo, useState } from 'react';
 import { checkIfNco } from '../give/actions';
 import { debounce } from 'lodash';
