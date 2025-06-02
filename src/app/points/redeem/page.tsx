@@ -117,7 +117,7 @@ export default function UsePointFormPage() {
         </Form.Item>
 
         <Form.Item<string>
-          label={'사용 대상자' + (target !== '' ? `: ${target}` : '')}
+          label={`사용 대상자 ${target ? `: ${target}` : ''}`}
           name='userId'
           rules={[
             { required: true, message: '사용용자를 입력해주세요' },
