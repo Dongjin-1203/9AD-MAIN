@@ -12,7 +12,6 @@ export function UnitSelect({ onChange }: UnitSelectProps) {
   return (
     <Form.Item
       name="unit"
-      label="중대 선택"
       rules={[{ required: true, message: '중대를 선택해주세요' }]}
     >
       <Select<UnitType>
