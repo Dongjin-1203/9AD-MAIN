@@ -9,6 +9,17 @@ import { validateSoldier } from './auth';
 import { kysely } from './kysely';
 import { hasPermission } from './utils';
 
+
+// utils.ts 또는 actions/soldiers.ts 등에서
+export async function fetchCommanders() {
+  return await kysely
+    .selectFrom('soldiers')
+    .innerJoin('permissions', 'soldiers.sn', 'permissions.soldiers_id')
+    .where('permissions.value', '=', 'Commander')
+    .select(['soldiers.sn', 'soldiers.name', 'soldiers.unit'])
+    .execute();
+}
+
 export async function unauthenticated_currentSoldier() {
   const accessToken = cookies().get('auth.access_token')?.value;
   if (accessToken == null) {
