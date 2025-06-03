@@ -19,12 +19,22 @@ model points {
   giver_id        String    @db.VarChar(11)
   receiver_id     String    @db.VarChar(11)
   created_at      DateTime  @default(now()) @db.Timestamp(0)
-  verified_at     DateTime? @db.Timestamp(0)
+  given_at        DateTime  @db.Timestamp(0)
   value           Int       @db.SmallInt
   reason          String?   @db.VarChar(1000)
-  given_at        DateTime  @db.Timestamp(0)
+
+  // ✅ 새 필드 직접 추가
+  status          PointStatus @default(pending)
+  approver_id     String?   @db.VarChar(11)
+  approved_at     DateTime? @db.Timestamp(0)
   rejected_at     DateTime? @db.Timestamp(0)
   rejected_reason String?   @db.VarChar(1000)
+}
+
+enum PointStatus {
+  pending
+  approved
+  rejected
 }
 
 model point_templates {
@@ -57,14 +67,41 @@ model soldiers {
   deleted_by  String?       @db.VarChar(36)
 }
 
+model overtimes {
+  id                 Int       @id @default(autoincrement())
+  created_at         DateTime  @default(now()) @db.Timestamp(0)
+  giver_id           String    @db.VarChar(11)
+  receiver_id        String    @db.VarChar(11)
+  approver_id        String    @db.VarChar(11)
+  verified_at        DateTime? @db.Timestamp(0)
+  approved_at        DateTime? @db.Timestamp(0)
+  started_at         DateTime  @db.Timestamp(0)
+  ended_at           DateTime  @db.Timestamp(0)
+  value              Int       @db.SmallInt
+  reason             String?   @db.VarChar(1000)
+  rejected_at        DateTime? @db.Timestamp(0)
+  rejected_reason    String?   @db.VarChar(1000)
+  disapproved_at     DateTime? @db.Timestamp(0)
+  disapproved_reason String?   @db.VarChar(1000)
+}
+
+model used_overtimes {
+  id          Int      @id @default(autoincrement())
+  user_id     String   @db.VarChar(11)
+  recorded_by String   @db.VarChar(11)
+  value       Int
+  reason      String?
+  created_at  DateTime @default(now())
+}
+
 enum soldiers_type {
   enlisted
   nco
 }
 
 enum unit {
-  headquarters  // 본부
-  security      // 경비
-  ammunition    // 탄약
-  staff         // 참모
+  headquarters
+  security
+  ammunition
+  staff
 }
