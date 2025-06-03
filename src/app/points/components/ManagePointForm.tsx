@@ -164,29 +164,37 @@ export function ManagePointForm({ type }: ManagePointFormProps) {
     async (newForm: any) => {
       await form.validateFields();
       setLoading(true);
-      createPoint({
-        ...newForm,
-        value: merit * newForm.value,
-        givenAt: newForm.givenAt.$d as Date,
-      })
-        .then(({ message: newMessage }) => {
-          if (newMessage) {
-            message.error(newMessage);
-          } else {
-            message.success(
-              type === 'request'
-                ? '상벌점 요청을 성공적으로 했습니다'
-                : '상벌점을 성공적으로 부여했습니다',
-            );
-            router.push('/points');
-          }
-        })
-        .finally(() => {
-          setLoading(false);
-        });
+
+      const idKey = type === 'request' ? 'giverIds' : 'receiverIds';
+      const idList: string[] = newForm[idKey];
+
+      const results = await Promise.all(
+        idList.map((id) =>
+          createPoint({
+            ...newForm,
+            [type === 'request' ? 'giverId' : 'receiverId']: id,
+            value: merit * newForm.value,
+            givenAt: newForm.givenAt.$d as Date,
+          }),
+        )
+      );
+
+      const hasError = results.some((res) => res.message);
+      if (hasError) {
+        message.error('일부 항목 부여에 실패했습니다.');
+      } else {
+        message.success(
+          type === 'request'
+            ? '상벌점 요청을 성공적으로 했습니다'
+            : '상벌점을 성공적으로 부여했습니다',
+        );
+        router.push('/points');
+      }
+      setLoading(false);
     },
-    [router, merit, form, message, type],
+    [router, merit, form, message, type]
   );
+
 
   return (
     <div className='px-4'>
@@ -240,29 +248,33 @@ export function ManagePointForm({ type }: ManagePointFormProps) {
           />
         </Form.Item>
 
-        <Form.Item<string>
-          label={(type === 'request' ? '수여자' : '수령자') + (target !== '' ? `: ${target}` : '')}
-          name={type === 'request' ? 'giverId' : 'receiverId'}
-          rules={[
-            { required: true, message: `${type === 'request' ? '수여자' : '수령자'}를 입력해주세요` },
-            { pattern: /^[0-9]{2}-[0-9]{5,8}$/, message: '잘못된 군번입니다' },
-          ]}
+        <Form.Item
+          label={type === 'request' ? '수여자들' : '수령자들'}
+          name={type === 'request' ? 'giverIds' : 'receiverIds'}
+          rules={[{ required: true, message: '최소 1명을 선택해주세요' }]}
         >
-          <AutoComplete
+          <Select
+            mode="multiple"
+            placeholder="이름 또는 군번 검색"
             onSearch={handleSearch}
+            filterOption={false}
             options={options.map((t) => ({
+              label: `${t.name} (${t.sn})`,
               value: t.sn,
-              label: renderPlaceholder(t),
             }))}
-            onChange={(value) => {
-              const selectedOption = options.find((t) => t.sn === value);
-              setTarget(selectedOption ? selectedOption.name : '');
+            onChange={(values) => {
+              const names = values
+                .map((sn: string) => {
+                  const found = options.find((o) => o.sn === sn);
+                  return found?.name;
+                })
+                .filter(Boolean)
+                .join(', ');
+              setTarget(names);
             }}
-            getPopupContainer={(c) => c.parentElement}
-          >
-            <Input.Search loading={searching} />
-          </AutoComplete>
+          />
         </Form.Item>
+
 
         <Form.Item<number>
           name='value'
