@@ -63,6 +63,50 @@ const pointTemplates = [
 const meritTemplates = pointTemplates.filter((t) => t.value > 0);
 const demeritTemplates = pointTemplates.filter((t) => t.value < 0);
 
+const [filterType, setFilterType] = useState<'all' | 'merit' | 'demerit'>('all');
+
+const selectOptions = useMemo(() => {
+  switch (filterType) {
+    case 'merit':
+      return [
+        {
+          label: '상점 항목',
+          options: meritTemplates.map((t) => ({
+            label: t.label,
+            value: t.label,
+          })),
+        },
+      ];
+    case 'demerit':
+      return [
+        {
+          label: '벌점 항목',
+          options: demeritTemplates.map((t) => ({
+            label: t.label,
+            value: t.label,
+          })),
+        },
+      ];
+    default:
+      return [
+        {
+          label: '상점 항목',
+          options: meritTemplates.map((t) => ({
+            label: t.label,
+            value: t.label,
+          })),
+        },
+        {
+          label: '벌점 항목',
+          options: demeritTemplates.map((t) => ({
+            label: t.label,
+            value: t.label,
+          })),
+        },
+      ];
+  }
+}, [filterType]);
+
 export type ManagePointFormProps = {
   type: 'request' | 'give';
 };
@@ -165,6 +209,20 @@ export function ManagePointForm({ type }: ManagePointFormProps) {
         <Form.Item label='중대 선택' colon={false}>
           <UnitSelect onChange={setSelectedUnit} />
         </Form.Item>
+
+        <Form.Item label="보기 옵션" colon={false}>
+          <Select
+            value={filterType}
+            onChange={(value) => setFilterType(value)}
+            options={[
+              { label: '전체 보기', value: 'all' },
+              { label: '상점만 보기', value: 'merit' },
+              { label: '벌점만 보기', value: 'demerit' },
+            ]}
+            style={{ width: 200 }}
+          />
+        </Form.Item>
+
         <Form.Item label='사유 선택' colon={false}>
           <Select
             placeholder='사유를 선택하세요'
@@ -176,22 +234,7 @@ export function ManagePointForm({ type }: ManagePointFormProps) {
                 setMerit(Number(selected.value) > 0 ? 1 : -1);
               }
             }}
-            options={[
-              {
-                label: '상점 항목',
-                options: meritTemplates.map((t) => ({
-                  label: t.label,
-                  value: t.label,
-                })),
-              },
-              {
-                label: '벌점 항목',
-                options: demeritTemplates.map((t) => ({
-                  label: t.label,
-                  value: t.label,
-                })),
-              },
-            ]}
+            options={selectOptions}
           />
         </Form.Item>
 
