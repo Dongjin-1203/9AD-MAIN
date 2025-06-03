@@ -1,3 +1,5 @@
+'use client';
+
 import { useEffect, useState } from 'react';
 import { fetchPendingPoints, verifyPoint } from '@/app/actions/points';
 import { Button, Input, Card, message } from 'antd';
