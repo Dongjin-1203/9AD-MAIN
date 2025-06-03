@@ -71,7 +71,6 @@ export default function GiveMassPointPage() {
       } finally {
         setLoading(false);
       }
-    };  
 
     try {
       const { message: resultMessage } = await createPoint(payload);
