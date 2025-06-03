@@ -135,29 +135,29 @@ export async function deletePoint(pointId: string) {
 }
 
 export async function verifyPoint(
-  pointId:       string,
-  value:         boolean,
+  pointId: string,
+  value: boolean,
   rejectReason?: string,
 ) {
   const [point, current] = await Promise.all([
     fetchPoint(pointId),
     currentSoldier(),
   ]);
+
   if (point == null) {
     return { message: '본 상벌점이 존재하지 않습니다' };
   }
-  if (point.giver_id !== current.sn) {
-    return { message: '본인한테 요청된 상벌점만 승인/반려 할 수 있십니다' };
+
+  // ✅ 현재 유저가 'Commander' 권한을 가지고 있는지 확인
+  if (!hasPermission(current.permissions, ['Commander'])) {
+    return { message: '상벌점을 승인/반려할 권한이 없습니다' };
   }
-  if (current.type === 'enlisted') {
-    return { message: '용사는 상벌점을 승인/반려 할 수 없습니다' };
-  }
-  if (!value && rejectReason == null) {
+
+  // ✅ 반려할 경우 사유 필수
+  if (!value && !rejectReason) {
     return { message: '반려 사유를 입력해주세요' };
   }
-  if (!hasPermission(current.permissions, ['Nco'])) {
-    return { message: '상벌점을 줄 권한이 없습니다' };
-  }
+
   try {
     await kysely
       .updateTable('points')
@@ -168,6 +168,7 @@ export async function verifyPoint(
         rejected_at: value ? null : new Date(),
       } as any)
       .executeTakeFirstOrThrow();
+
     return { message: null };
   } catch (e) {
     return { message: '승인/반려에 실패하였습니다' };
