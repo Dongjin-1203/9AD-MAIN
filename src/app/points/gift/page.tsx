@@ -63,6 +63,16 @@ export default function GiveMassPointPage() {
       value: values.value * merit,
     };
 
+    console.log('🧪 values.value:', values.value, 'typeof:', typeof values.value);
+    console.log('🧪 payload.value:', payload.value, 'typeof:', typeof payload.value);
+    
+    try {
+        // createPoint(payload) 호출
+      } finally {
+        setLoading(false);
+      }
+    };  
+
     try {
       const { message: resultMessage } = await createPoint(payload);
 
@@ -138,20 +148,23 @@ export default function GiveMassPointPage() {
           required
           style={{ marginBottom: 0 }}
         >
-          <InputNumber
-            min={1}
-            style={{ width: '50%' }}
-            placeholder="점수 입력"
-            onChange={(val) => form.setFieldValue('value', val)}
-          />
-          <Select
-            value={merit}
-            onChange={(val) => setMerit(val)}
-            style={{ width: '50%' }}
-          >
-            <Select.Option value={1}>상점</Select.Option>
-            <Select.Option value={-1}>벌점</Select.Option>
-          </Select>
+          <div style={{ display: 'flex', gap: '8px' }}>
+            <Form.Item name="value" noStyle rules={[{ required: true, message: '점수를 입력해주세요' }]}>
+              <InputNumber
+                min={1}
+                style={{ width: '50%' }}
+                placeholder="점수 입력"
+              />
+            </Form.Item>
+            <Select
+              value={merit}
+              onChange={(val) => setMerit(val)}
+              style={{ width: '50%' }}
+            >
+              <Select.Option value={1}>상점</Select.Option>
+              <Select.Option value={-1}>벌점</Select.Option>
+            </Select>
+          </div>
         </Form.Item>
 
         {/* 5. 사유 입력 */}
