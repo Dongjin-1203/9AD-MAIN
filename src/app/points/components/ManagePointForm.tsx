@@ -76,6 +76,7 @@ export function ManagePointForm({ type }: ManagePointFormProps) {
   const [target, setTarget] = useState('');
   const [selectedUnit, setSelectedUnit] = useState<UnitType | undefined>(undefined);
   const [filterType, setFilterType] = useState<'all' | 'merit' | 'demerit'>('all');
+  const [commanders, setCommanders] = useState([]);
 
   const meritTemplates = useMemo(() => pointTemplates.filter((t) => t.value > 0), []);
   const demeritTemplates = useMemo(() => pointTemplates.filter((t) => t.value < 0), []);
@@ -216,6 +217,16 @@ export function ManagePointForm({ type }: ManagePointFormProps) {
 
         <Form.Item label='중대 선택' colon={false}>
           <UnitSelect onChange={setSelectedUnit} />
+        </Form.Item>
+
+        <Form.Item name="approver_id" label="중대장" rules={[{ required: true }]}>
+          <Select placeholder="중대장을 선택하세요">
+            {commanders.map((cmdr) => (
+              <Select.Option key={cmdr.sn} value={cmdr.sn}>
+                {cmdr.name} ({cmdr.unit})
+              </Select.Option>
+            ))}
+          </Select>
         </Form.Item>
 
         <Form.Item label='보기 옵션' colon={false}>

@@ -54,6 +54,7 @@ export async function fetchPendingPoints() {
   // 중대장이 승인해야 하는 pending 상태 상점 리스트
   return kysely
     .selectFrom('points')
+    .where('approver_id', '=', sn!)
     .where('status', '=', 'pending')
     .selectAll()
     .execute();
@@ -149,9 +150,10 @@ export async function verifyPoint(
   }
 
   // ✅ 현재 유저가 'Commander' 권한을 가지고 있는지 확인
-  if (!hasPermission(current.permissions, ['Commander'])) {
-    return { message: '상벌점을 승인/반려할 권한이 없습니다' };
+  if (point.approver_id !== current.sn) {
+    return { message: '본인에게 요청된 상벌점만 승인/반려 할 수 있습니다' };
   }
+
 
   // ✅ 반려할 경우 사유 필수
   if (!value && !rejectReason) {
@@ -249,6 +251,7 @@ export async function createPoint({
           given_at:    givenAt,
           receiver_id: sn!,
           giver_id:    giverId!,
+          approver_id: approverId!,
           value,
           reason,
           status: 'pending',
