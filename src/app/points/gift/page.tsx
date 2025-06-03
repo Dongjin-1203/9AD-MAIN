@@ -1,7 +1,9 @@
 'use client';
 
 import {
-  searchEnlisted
+  createPoint,
+  searchEnlisted,
+  searchNco,
 } from '@/app/actions';
 import {
   App,
@@ -57,13 +59,21 @@ export default function GiveMassPointPage() {
 
     const payload = {
       ...values,
-      givenAt: values.givenAt.format('YYYY-MM-DD'),
+      givenAt: values.givenAt.$d as Date,
       value: values.value * merit,
     };
 
     try {
-      console.log('제출 데이터:', payload);
-      // TODO: createPoint API 호출
+      const { message: resultMessage } = await createPoint(payload);
+
+      if (resultMessage) {
+        message.error(resultMessage); // 실패 메시지
+      } else {
+        message.success('상벌점을 성공적으로 부여했습니다'); // 성공 메시지
+        form.resetFields(); // 폼 초기화
+      }
+    } catch (e) {
+      message.error('예기치 못한 오류가 발생했습니다');
     } finally {
       setLoading(false);
     }
