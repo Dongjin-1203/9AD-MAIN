@@ -139,7 +139,6 @@ export default function GiveMassPointPage() {
           style={{ marginBottom: 0 }}
         >
           <InputNumber
-            name="value"
             min={1}
             style={{ width: '50%' }}
             placeholder="점수 입력"
