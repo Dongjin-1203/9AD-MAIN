@@ -12,6 +12,7 @@ import { kysely } from './kysely';
 import { currentSoldier } from './soldiers';
 import { hasPermission } from './utils';
 import { revalidatePath } from 'next/cache';
+import { jwtVerify } from 'jose';
 
 const AuthParams = Soldier.pick({ sn: true, password: true });
 
@@ -35,6 +36,24 @@ export async function validateSoldier(
   }
   if (!data.verified_at) {
     redirect('/auth/needVerification');
+  }
+}
+
+export async function getCurrentSoldierFromToken() {
+  const cookie = cookies().get('auth.access_token');
+  if (!cookie) return null;
+
+  try {
+    const secret = new TextEncoder().encode(process.env.JWT_SECRET_KEY!);
+    const { payload } = await jwtVerify(cookie.value, secret);
+
+    return {
+      sn: payload.sub as string,
+      name: payload.name as string,
+      type: payload.type as string,
+    };
+  } catch (err) {
+    return null;
   }
 }
 
