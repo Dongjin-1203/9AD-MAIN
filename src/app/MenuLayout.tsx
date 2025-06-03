@@ -23,6 +23,7 @@ import { currentSoldier, signOut, hasPermission } from './actions';
 
 const title = {
   '/points'           : '상점 관리',
+  '/points/approval'  : '상벌점 승인',
   '/points/request'   : '상점 요청',
   '/points/give'      : '상점 부여',
   '/points/gift'      : '상벌점 소급',
@@ -151,7 +152,15 @@ export function MenuLayout({
                   icon: <SendOutlined />,
                   onClick,
                 } : null,
-
+                hasPermission(data.permissions, [
+                  'Commander',
+                ]) ?
+                {
+                  key: '/points/approval',
+                  label: '상벌점 승인',
+                  icon: <SendOutlined />,
+                  onClick,
+                } : null,
                 hasPermission(data.permissions, [
                   'Admin',
                   'Commander',
