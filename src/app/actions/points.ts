@@ -44,14 +44,21 @@ export async function listPoints(sn: string) {
 }
 
 export async function fetchPendingPoints() {
-  const { sn } = await currentSoldier();
+  const current = await currentSoldier();
+
+  // 중대장만 승인 가능
+  if (!hasPermission(current.permissions, ['Commander'])) {
+    return []; // 중대장이 아니면 빈 배열 반환
+  }
+
+  // 중대장이 승인해야 하는 pending 상태 상점 리스트
   return kysely
     .selectFrom('points')
-    .where('giver_id', '=', sn!)
     .where('status', '=', 'pending')
     .selectAll()
     .execute();
 }
+
 
 export async function fetchPointsCountsNco() {
   const { sn } = await currentSoldier();
