@@ -2,24 +2,24 @@ import { Collapse, ConfigProvider } from 'antd';
 import { PointCard } from './PointCard';
 import { useMemo } from 'react';
 
-export type PointsHistoryListProps = { 
-  type: 'enlisted' | 'nco'; 
-  data: { id: string; verified_at: Date | null; rejected_at: Date | null; }[]; 
+export type PointsHistoryListProps = {
+  type: 'enlisted' | 'nco';
+  data: { id: string; status: 'pending' | 'approved' | 'rejected' }[];
 };
 
 export function PointsHistoryList({ data, type }: PointsHistoryListProps) {
-  const unverified = data?.filter((d) => d.verified_at === null && d.rejected_at === null) || [];
-  const verified = data?.filter((d) => d.verified_at !== null) || [];
-  const rejected = data?.filter((d) => d.rejected_at !== null) || [];
+  const pending = data?.filter((d) => d.status === 'pending') || [];
+  const approved = data?.filter((d) => d.status === 'approved') || [];
+  const rejected = data?.filter((d) => d.status === 'rejected') || [];
 
   const items = useMemo(() => {
     const enlistedItems = [];
 
     if (type === 'enlisted') {
       enlistedItems.push({
-        key: 'unverified',
-        label: `상벌점 요청 내역 (${unverified.length})`,
-        children: unverified.map((d) => <PointCard key={d.id} pointId={d.id} />),
+        key: 'pending',
+        label: `상벌점 요청 내역 (${pending.length})`,
+        children: pending.map((d) => <PointCard key={d.id} pointId={d.id} />),
       });
     }
 
@@ -30,14 +30,14 @@ export function PointsHistoryList({ data, type }: PointsHistoryListProps) {
         children: rejected.map((d) => <PointCard key={d.id} pointId={d.id} />),
       },
       {
-        key: 'verified',
-        label: `상벌점 ${type === 'nco' ? '승인' : ''} 내역 (${verified.length})`,
-        children: verified.map((d) => <PointCard key={d.id} pointId={d.id} />),
+        key: 'approved',
+        label: `상벌점 ${type === 'nco' ? '승인' : ''} 내역 (${approved.length})`,
+        children: approved.map((d) => <PointCard key={d.id} pointId={d.id} />),
       },
     );
 
     return enlistedItems;
-  }, [type, unverified, verified, rejected]);
+  }, [type, pending, approved, rejected]);
 
   return (
     <div>
@@ -54,7 +54,7 @@ export function PointsHistoryList({ data, type }: PointsHistoryListProps) {
       >
         <Collapse
           items={items}
-          defaultActiveKey={type === 'enlisted' ? ['unverified', 'rejected'] : ['verified']}
+          defaultActiveKey={type === 'enlisted' ? ['pending', 'rejected'] : ['approved']}
         />
       </ConfigProvider>
     </div>

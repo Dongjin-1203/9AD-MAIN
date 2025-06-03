@@ -40,18 +40,14 @@ export function PointCard({ pointId }: PointCardProps) {
     if (point == null) {
       return undefined;
     }
-    if (point.verified_at) {
-      if (point.value < 0) {
-        return '#ed8429';
-      }
-      return '#A7C0FF';
+    if (point.status === 'approved') {
+      return point.value < 0 ? '#ed8429' : '#A7C0FF';
     }
-    if (point.rejected_at || point.rejected_reason) {
+    if (point.status === 'rejected') {
       return '#ED2939';
     }
-    return '#D9D9D9';
+    return '#D9D9D9'; // pending
   })();
-  
 
   return (
     <Card
@@ -78,8 +74,8 @@ export function PointCard({ pointId }: PointCardProps) {
       >
         <div className='flex flex-row'>
           <div className='flex-1'>
-            {point?.rejected_reason && (
-              <p>반려 사유: {point?.rejected_reason}</p>
+            {point?.status === 'rejected' && point.rejected_reason && (
+              <p>반려 사유: {point.rejected_reason}</p>
             )}
             <p>
               {point?.given_at
@@ -88,7 +84,7 @@ export function PointCard({ pointId }: PointCardProps) {
             </p>
             <p>{point?.reason}</p>
           </div>
-          {point?.verified_at ? null : (
+          {point?.status === 'pending' && (
             <Popconfirm
               title='삭제하시겠습니까?'
               okText='삭제'
