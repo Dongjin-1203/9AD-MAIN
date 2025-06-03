@@ -251,25 +251,31 @@ export async function createPoint({
       return { message: '알 수 없는 오류가 발생했습니다' };
     }
   }
-  if (!hasPermission(permissions, ['Commander'])) {
-    return { message: '상벌점을 줄 권한이 없습니다' };
+
+  if (type === 'nco') {
+    if (!hasPermission(permissions, ['Nco'])) {
+      return { message: '상벌점을 줄 권한이 없습니다' };
+    }
+    const isCommander = hasPermission(permissions, ['Commander']);
+    try {
+      await kysely
+        .insertInto('points')
+        .values({
+          given_at:    givenAt,
+          receiver_id: receiverId!,
+          giver_id:    sn!,
+          value,
+          reason,
+          status: isCommander ? 'approved' : 'pending',
+        } as any)
+        .executeTakeFirstOrThrow();
+      return { message: null };
+    } catch (e) {
+      return { message: '알 수 없는 오류가 발생했습니다' };
+    }
   }
-  try {
-    await kysely
-      .insertInto('points')
-      .values({
-        given_at:    givenAt,
-        receiver_id: receiverId!,
-        giver_id:    sn!,
-        value,
-        reason,
-        status: 'approved',
-      } as any)
-      .executeTakeFirstOrThrow();
-    return { message: null };
-  } catch (e) {
-    return { message: '알 수 없는 오류가 발생했습니다' };
-  }
+
+  return { message: '상벌점 수여 권한이 없습니다' };
 }
 
 export async function redeemPoint({
