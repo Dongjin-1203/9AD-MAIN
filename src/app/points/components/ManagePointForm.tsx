@@ -60,6 +60,9 @@ const pointTemplates = [
   { label: '교육훈련: 장병 기본훈련 고의적 점수 미달 / 미실시자(과목별 누적 부여 가능)', value: -5},
 ];
 
+const meritTemplates = pointTemplates.filter((t) => t.value > 0);
+const demeritTemplates = pointTemplates.filter((t) => t.value < 0);
+
 export type ManagePointFormProps = {
   type: 'request' | 'give';
 };
@@ -166,19 +169,32 @@ export function ManagePointForm({ type }: ManagePointFormProps) {
           <Select
             placeholder='사유를 선택하세요'
             onChange={(value, option: any) => {
-              const selected = pointTemplates.find(t => t.label === value);
+              const selected = [...meritTemplates, ...demeritTemplates].find(t => t.label === value);
               if (selected) {
                 form.setFieldValue('reason', selected.label);
                 form.setFieldValue('value', Math.abs(Number(selected.value)));
                 setMerit(Number(selected.value) > 0 ? 1 : -1);
               }
             }}
-            options={pointTemplates.map((template) => ({
-              label: template.label,
-              value: template.label,
-            }))}
+            options={[
+              {
+                label: '상점 항목',
+                options: meritTemplates.map((t) => ({
+                  label: t.label,
+                  value: t.label,
+                })),
+              },
+              {
+                label: '벌점 항목',
+                options: demeritTemplates.map((t) => ({
+                  label: t.label,
+                  value: t.label,
+                })),
+              },
+            ]}
           />
         </Form.Item>
+
         <Form.Item<string>
           label={(type === 'request' ? '수여자' : '수령자') + (target !== '' ? `: ${target}` : '')}
           name={type === 'request' ? 'giverId' : 'receiverId'}
