@@ -251,7 +251,7 @@ export async function createPoint({
       return { message: '알 수 없는 오류가 발생했습니다' };
     }
   }
-  if (!hasPermission(permissions, ['Nco'])) {
+  if (!hasPermission(permissions, ['Commander'])) {
     return { message: '상벌점을 줄 권한이 없습니다' };
   }
   try {
