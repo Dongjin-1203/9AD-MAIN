@@ -56,7 +56,7 @@ export async function fetchPendingPoints() {
     .selectFrom('points as p')
     .leftJoin('soldiers as g', 'p.giver_id', 'g.sn')       // giver (부여자)
     .leftJoin('soldiers as r', 'p.receiver_id', 'r.sn')    // receiver (수령자)
-    .where('p.approver_id', '=', current.sn)
+    .where('p', '=', current.sn)
     .where('p.status', '=', 'pending')
     .select([
       'p.id',

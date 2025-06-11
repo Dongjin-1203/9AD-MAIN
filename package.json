@@ -6,7 +6,8 @@
     "dev": "next dev",
     "build": "kysely-codegen --url='env(POSTGRES_URL)' --dialect=postgres && next build",
     "start": "next start",
-    "lint": "next lint"
+    "lint": "next lint",
+    "codegen": "kysely-codegen --url='env(POSTGRES_URL)' --dialect=postgres"
   },
   "dependencies": {
     "@ant-design/cssinjs": "^1.21.0",
@@ -17,12 +18,12 @@
     "@types/react-dom": "^18.3.0",
     "antd": "^5.20.0",
     "autoprefixer": "^10.4.20",
+    "codegen": "^0.1.0",
     "dayjs": "^1.11.12",
     "div2csu": "file:",
     "jose": "^6.0.11",
     "jsonwebtoken": "^9.0.2",
     "kysely": "^0.27.4",
-    "kysely-codegen": "^0.15.0",
     "lodash": "^4.17.21",
     "moment": "^2.30.1",
     "next": "^14.2.5",
@@ -41,6 +42,7 @@
     "@types/pg": "^8.11.6",
     "eslint": "^8.57.0",
     "eslint-config-next": "^14.2.5",
+    "kysely-codegen": "^0.18.5",
     "prisma": "^5.22.0"
   },
   "packageManager": "yarn@4.4.0"

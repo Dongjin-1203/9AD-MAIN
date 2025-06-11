@@ -25,7 +25,7 @@ model points {
 
   // ✅ 새 필드 직접 추가
   status          PointStatus @default(pending)
-  approver_id     String?   @db.VarChar(11)
+  approver_id     String   @db.VarChar(11)
   approved_at     DateTime? @db.Timestamp(0)
   rejected_at     DateTime? @db.Timestamp(0)
   rejected_reason String?   @db.VarChar(1000)
