@@ -8,7 +8,7 @@ import { hasPermission } from './utils';
 export async function fetchPoint(pointId: string) {
   return kysely
     .selectFrom('points')
-    .where('id', '=', pointId)
+    .where('id', '=', Number(pointId))
     .leftJoin('soldiers as g', 'g.sn', 'points.giver_id')
     .leftJoin('soldiers as r', 'r.sn', 'points.receiver_id')
     .selectAll(['points'])
@@ -139,7 +139,7 @@ export async function deletePoint(pointId: string) {
   try {
     await kysely
       .deleteFrom('points')
-      .where('id', '=', pointId)
+      .where('id', '=', Number(pointId))
       .executeTakeFirstOrThrow();
   } catch (e) {
     return { message: '알 수 없는 오류가 발생했습니다' };
@@ -175,7 +175,7 @@ export async function verifyPoint(
   try {
     await kysely
       .updateTable('points')
-      .where('id', '=', pointId)
+      .where('id', '=', Number(pointId))
       .set({
         status: value ? 'approved' : 'rejected',
         rejected_reason: value ? undefined : rejectReason,
@@ -223,12 +223,14 @@ export async function createPoint({
   receiverId,
   reason,
   givenAt,
+  approverId
 }: {
   value:       number;
   giverId?:    string | null;
   receiverId?: string | null;
   reason:      string;
   givenAt:     Date;
+  approverId?: string | null;
 }) {
   if (reason.trim() === '') {
     return { message: '상벌점 수여 이유를 작성해주세요' };
@@ -263,7 +265,7 @@ export async function createPoint({
           given_at:    givenAt,
           receiver_id: sn!,
           giver_id:    giverId!,
-          approver_id: approver_id!,
+          approver_id: approverId!,
           value,
           reason,
           status: 'pending',
