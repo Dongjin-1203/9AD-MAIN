@@ -276,7 +276,7 @@ export async function createPoint({
           given_at:    givenAt,
           receiver_id: sn!,
           giver_id:    giverId!,
-          approver_id: approverId!,
+          approver_id: approverId ?? null ,
           value,
           reason,
           status: 'pending',
