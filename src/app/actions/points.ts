@@ -269,6 +269,16 @@ export async function createPoint({
     if (giverId === sn) {
       return { message: '스스로에게 수여할 수 없습니다' };
     }
+    console.log("🔥 Payload to insert:", {
+      given_at: givenAt,
+      receiver_id: sn,
+      giver_id: giverId,
+      approver_id: approverId,
+      value,
+      reason,
+      status: 'pending',
+    });
+
     try {
       await kysely
         .insertInto('points')
