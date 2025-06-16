@@ -43,7 +43,7 @@ export async function listPoints(sn: string) {
   return { data, usedPoints: usedPoints || null };
 }
 
-export async function fetchCommanders() {
+export async function LoadCommanders() {
   const result = await kysely
     .selectFrom('soldiers')
     .innerJoin('permissions', 'soldiers.sn', 'permissions.soldiers_id')
