@@ -22,12 +22,13 @@ import { debounce } from 'lodash';
 import { checkIfNco } from '../give/actions';
 import { UnitSelect } from '../components/UnitSelect';
 import type { UnitType } from '../components/UnitSelect';
+import { LoadCommanders } from '@/app/actions';
 
 // (1) Commander 타입 정의 추가
 type Commander = {
   sn: string;
   name: string;
-  unit: string;
+  unit: 'headquarters' | 'security' | 'ammunition' | 'staff' | null;
 };
 
 const pointTemplates = [
@@ -167,6 +168,16 @@ export function ManagePointForm({ type }: ManagePointFormProps) {
       setOptions(value);
     });
   }, [query, type, selectedUnit]);
+
+  useEffect(() => {
+    const loadCommanders = async () => {
+      const data = await LoadCommanders();
+      console.log("불러온 중대장:", data); // 👈 실제 데이터 확인
+      setCommanders(data);
+    };
+    loadCommanders();
+  }, []);
+
 
   const handleSubmit = useCallback(
     async (newForm: any) => {
