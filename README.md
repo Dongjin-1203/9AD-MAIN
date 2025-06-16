@@ -49,4 +49,3 @@ JWT_SECRET_KEY="<COMPLEX_RANDOM_STRING>"
 ## 📄 License
 
 상벌점관리서비스는 [MIT License](https://github.com/Dongjin-1203/9AD-MAIN/blob/main/LICENSE)로 자유롭게 이용하시면 됩니다.
-
