@@ -14,7 +14,7 @@ export function PointRequestList({ data }: PointRequestListProps) {
       {
         key: 'requested',
         label: `상벌점 승인 요청 내역 (${data.length})`,
-        children: data.map((d) => <PointRequestCard key={d.id} pointId={d.id} />),
+        children: data.map((d) => <PointRequestCard key={d.id} pointId={String(d.id)} />),
       },
     ];
   }, [data]);
