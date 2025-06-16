@@ -53,17 +53,17 @@ export async function fetchPendingPoints() {
 
   // 중대장이 승인해야 하는 pending 상태 상점 리스트
   return kysely
-    .selectFrom('points as p')
-    .leftJoin('soldiers as g', 'p.giver_id', 'g.sn')       // giver (부여자)
-    .leftJoin('soldiers as r', 'p.receiver_id', 'r.sn')    // receiver (수령자)
-    .where('p.approver_id', '=', current.sn)
-    .where('p.status', '=', 'pending')
+    .selectFrom('points')
+    .leftJoin('soldiers as g', 'points.giver_id', 'g.sn')       // giver (부여자)
+    .leftJoin('soldiers as r', 'points.receiver_id', 'r.sn')    // receiver (수령자)
+    .where('approver_id', '=', current.sn)
+    .where('status', '=', 'pending')
     .select([
-      'p.id',
-      'p.reason',
-      'p.value',
-      'p.given_at',
-      'p.status',
+      'points.id',
+      'points.reason',
+      'points.value',
+      'points.given_at',
+      'points.status',
       'p.rejected_reason',
       'g.name as giver_name',
       'r.name as receiver_name',
@@ -263,7 +263,7 @@ export async function createPoint({
           given_at:    givenAt,
           receiver_id: sn!,
           giver_id:    giverId!,
-          approver_id: approverId!,
+          approver_id: approver_Id!,
           value,
           reason,
           status: 'pending',
