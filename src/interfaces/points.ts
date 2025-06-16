@@ -1,17 +1,18 @@
 import z from 'zod';
 
 export const Point = z.object({
-  id:              z.string().uuid(),   // 상벌점 ID
-  giver_id:        z.string(),          // 상벌점을 부여한 사용자 ID
-  receiver_id:     z.string(),          // 상벌점을 받은 사용자 ID
-  created_at:      z.date(),            // 상벌점 데이터 생성일
-  value:           z.number(),          // 상벌점 값 (양수: 상점, 음수: 벌점)
-  reason:          z.string(),          // 상벌점 부여 이유
-  given_at:        z.date(),            // 상벌점 받은 날짜
-  rejected_reason: z.string().optional(), // 반려 사유 (optional)
-
-  // 새로 추가된 status 필드
-  status: z.enum(['pending', 'approved', 'rejected']), // 상벌점 상태
+  id:              z.number(),  // Prisma에서 Int (autoincrement) 사용
+  giver_id:        z.string().min(1),    // 사용자 ID (군번)
+  receiver_id:     z.string().min(1),
+  approver_id:     z.string().min(1),    // 중대장이 승인 시 필요
+  created_at:      z.coerce.date(),      // DB Timestamp
+  given_at:        z.coerce.date(),      // 부여 날짜
+  value:           z.number().int(),     // SmallInt
+  reason:          z.string().nullable(),     // optional -> nullable로 변경
+  rejected_reason: z.string().nullable(),     // optional -> nullable로 변경
+  approved_at:     z.coerce.date().nullable(), // optional 필드
+  rejected_at:     z.coerce.date().nullable(),
+  status:          z.enum(['pending', 'approved', 'rejected']), // enum
 });
 
 export type Point = z.infer<typeof Point>;
