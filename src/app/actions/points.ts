@@ -43,6 +43,17 @@ export async function listPoints(sn: string) {
   return { data, usedPoints: usedPoints || null };
 }
 
+export async function fetchCommanders() {
+  const result = await kysely
+    .selectFrom('soldiers')
+    .innerJoin('permissions', 'soldiers.sn', 'permissions.soldiers_id')
+    .select(['soldiers.sn as sn', 'soldiers.name as name', 'soldiers.unit as unit'])
+    .where('permissions.value', '=', 'Commander')
+    .execute();
+
+  return result; // [{ sn: '12345678901', name: '홍길동', unit: '1중대' }, ...]
+}
+
 export async function fetchPendingPoints() {
   const current = await currentSoldier();
 
