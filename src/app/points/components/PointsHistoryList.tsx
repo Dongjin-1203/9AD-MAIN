@@ -4,7 +4,7 @@ import { useMemo } from 'react';
 
 export type PointsHistoryListProps = {
   type: 'enlisted' | 'nco';
-  data: { id: string; status: 'pending' | 'approved' | 'rejected' }[];
+  data: { id: number; status: 'pending' | 'approved' | 'rejected' }[];
 };
 
 export function PointsHistoryList({ data, type }: PointsHistoryListProps) {
@@ -19,7 +19,7 @@ export function PointsHistoryList({ data, type }: PointsHistoryListProps) {
       enlistedItems.push({
         key: 'pending',
         label: `상벌점 요청 내역 (${pending.length})`,
-        children: pending.map((d) => <PointCard key={d.id} pointId={d.id} />),
+        children: pending.map((d) => <PointCard key={d.id} pointId={String(d.id)} />),
       });
     }
 
@@ -27,12 +27,12 @@ export function PointsHistoryList({ data, type }: PointsHistoryListProps) {
       {
         key: 'rejected',
         label: `상벌점 반려 내역 (${rejected.length})`,
-        children: rejected.map((d) => <PointCard key={d.id} pointId={d.id} />),
+        children: rejected.map((d) => <PointCard key={d.id} pointId={String(d.id)} />),
       },
       {
         key: 'approved',
         label: `상벌점 ${type === 'nco' ? '승인' : ''} 내역 (${approved.length})`,
-        children: approved.map((d) => <PointCard key={d.id} pointId={d.id} />),
+        children: approved.map((d) => <PointCard key={d.id} pointId={String(d.id)} />),
       },
     );
 
