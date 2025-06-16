@@ -23,6 +23,13 @@ import { checkIfNco } from '../give/actions';
 import { UnitSelect } from '../components/UnitSelect';
 import type { UnitType } from '../components/UnitSelect';
 
+// (1) Commander 타입 정의 추가
+type Commander = {
+  sn: string;
+  name: string;
+  unit: string;
+};
+
 const pointTemplates = [
   { label: '경계근무: 근무공백(환자, 훈련 등) 발생 시, 자발적 근무교대 1점', value: 1 },
   { label: '경계근무: 근무공백(환자, 훈련 등) 발생 시, 자발적 근무교대 2점', value: 2 },
@@ -76,7 +83,7 @@ export function ManagePointForm({ type }: ManagePointFormProps) {
   const [target, setTarget] = useState('');
   const [selectedUnit, setSelectedUnit] = useState<UnitType | undefined>(undefined);
   const [filterType, setFilterType] = useState<'all' | 'merit' | 'demerit'>('all');
-  const [commanders, setCommanders] = useState([]);
+  const [commanders, setCommanders] = useState<Commander[]>([]);
 
   const meritTemplates = useMemo(() => pointTemplates.filter((t) => t.value > 0), []);
   const demeritTemplates = useMemo(() => pointTemplates.filter((t) => t.value < 0), []);
