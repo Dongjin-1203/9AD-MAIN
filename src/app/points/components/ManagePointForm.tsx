@@ -30,7 +30,7 @@ import { LoadCommanders } from '@/app/actions';
 type Commander = {
   sn: string;
   name: string;
-  unit: 'headquarters' | 'security' | 'ammunition' | 'staff' | null;
+  unit: 'headquarters' | 'security' | 'ammunition' ;
 };
 
 const pointTemplates = [
@@ -213,7 +213,7 @@ export function ManagePointForm({ type }: ManagePointFormProps) {
           createPoint({
             ...newForm,
             [type === 'request' ? 'giverId' : 'receiverId']: id,
-            approverId: approverId,
+            approverId: selectedCommander,
             value: merit * newForm.value,
             givenAt: newForm.givenAt.$d as Date,
           }),
