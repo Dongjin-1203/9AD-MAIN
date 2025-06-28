@@ -169,14 +169,14 @@ export function ManagePointForm({ type }: ManagePointFormProps) {
     });
   }, [query, type, selectedUnit]);
 
-  useEffect(() => {
-    const loadCommanders = async () => {
-      const data = await LoadCommanders();
-      console.log("불러온 중대장:", data); // 👈 실제 데이터 확인
-      setCommanders(data);
-    };
-    loadCommanders();
-  }, []);
+  // useEffect(() => {
+  //   const loadCommanders = async () => {
+  //     const data = await LoadCommanders();
+  //     console.log("불러온 중대장:", data); // 👈 실제 데이터 확인
+  //     setCommanders(data);
+  //   };
+  //   loadCommanders();
+  // }, []);
 
 
   const handleSubmit = useCallback(
@@ -237,14 +237,8 @@ export function ManagePointForm({ type }: ManagePointFormProps) {
           <UnitSelect onChange={setSelectedUnit} />
         </Form.Item>
 
-        <Form.Item name="approver_id" label="중대장" rules={[{ required: true }]}>
-          <Select placeholder="중대장을 선택하세요">
-            {commanders.map((cmdr) => (
-              <Select.Option key={cmdr.sn} value={cmdr.sn}>
-                {cmdr.name} ({cmdr.unit})
-              </Select.Option>
-            ))}
-          </Select>
+        <Form.Item label="중대장 선택" colon={false}>
+          <UnitSelect onChange={setSelectedUnit} />
         </Form.Item>
 
         <Form.Item label='보기 옵션' colon={false}>
