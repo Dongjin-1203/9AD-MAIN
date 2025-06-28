@@ -85,9 +85,9 @@ export function ManagePointForm({ type }: ManagePointFormProps) {
   const { message } = App.useApp();
   const [target, setTarget] = useState('');
   const [selectedUnit, setSelectedUnit] = useState<UnitType | undefined>(undefined);
-  const [selectedCommander, setSelectedCommander] = useState<UnitType | undefined>(undefined);
+  const [selectedCommander, setSelectedCommander] = useState<CommanderType | undefined>(undefined);
   const [filterType, setFilterType] = useState<'all' | 'merit' | 'demerit'>('all');
-  const [commanders, setCommanders] = useState<Commander[]>([]);
+  // const [commanders, setCommanders] = useState<Commander[]>([]);
 
   const meritTemplates = useMemo(() => pointTemplates.filter((t) => t.value > 0), []);
   const demeritTemplates = useMemo(() => pointTemplates.filter((t) => t.value < 0), []);
@@ -170,7 +170,12 @@ export function ManagePointForm({ type }: ManagePointFormProps) {
       setSearching(false);
       setOptions(value);
     });
-  }, [query, type, selectedUnit]);
+
+    searchFn(query, selectedCommander).then((value) => {
+      setSearching(false);
+      setOptions(value);
+    });
+  }, [query, type, selectedUnit, selectedCommander]);
 
   // useEffect(() => {
   //   const loadCommanders = async () => {
