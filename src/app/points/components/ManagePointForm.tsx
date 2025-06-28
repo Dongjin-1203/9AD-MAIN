@@ -23,7 +23,7 @@ import { checkIfNco } from '../give/actions';
 import { UnitSelect } from '../components/UnitSelect';
 import type { UnitType } from '../components/UnitSelect';
 import { CommanderSelect } from '../components/commanderSelect';
-import type { CommanderType } from '../components/commanderSelect';
+import { searchCommander } from '@/app/actions/soldiers';
 import { LoadCommanders } from '@/app/actions';
 
 // (1) Commander 타입 정의 추가
@@ -195,11 +195,20 @@ export function ManagePointForm({ type }: ManagePointFormProps) {
       const idKey = type === 'request' ? 'giverIds' : 'receiverIds';
       const idList: string[] = newForm[idKey];
 
+      // 👉 approverId를 결정
+      let approverId: string | undefined;
+      if (type === 'request') {
+        const commanderData = await searchCommander(''); // 전체 Commander 불러오기
+        const matched = commanderData.find((c) => c.unit === selectedCommander);
+        approverId = matched?.sn;
+      }
+
       const results = await Promise.all(
         idList.map((id) =>
           createPoint({
             ...newForm,
             [type === 'request' ? 'giverId' : 'receiverId']: id,
+            approverId: type === 'request' ? approverId : undefined,
             value: merit * newForm.value,
             givenAt: newForm.givenAt.$d as Date,
           }),
@@ -219,7 +228,7 @@ export function ManagePointForm({ type }: ManagePointFormProps) {
       }
       setLoading(false);
     },
-    [router, merit, form, message, type]
+    [router, merit, form, message, type, selectedCommander]
   );
 
 

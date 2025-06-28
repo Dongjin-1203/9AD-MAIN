@@ -1,28 +1,37 @@
 'use client';
 
 import { Select, Form } from 'antd';
+import { useEffect, useState } from 'react';
+import { searchCommander } from '@/app/actions/soldiers';
 
-export type CommanderType = 'headquarters' | 'security' | 'ammunition';
+export function CommanderSelect({ onChange }: { onChange?: (sn: string) => void }) {
+  const [options, setOptions] = useState<{ label: string; value: string }[]>([]);
 
-export type CommanderSelectProps = {
-  onChange?: (unit: CommanderType | undefined) => void;
-};
+  useEffect(() => {
+    const load = async () => {
+      const commanders = await searchCommander('');
+      const opt = commanders.map(c => ({
+        label: `${c.name} (${c.sn})`,
+        value: c.sn,
+      }));
+      setOptions(opt);
+    };
+    load();
+  }, []);
 
-export function CommanderSelect({ onChange }: CommanderSelectProps) {
   return (
     <Form.Item
-      name="commander"
+      name="approverId"
       rules={[{ required: true, message: '중대장을 선택해주세요' }]}
     >
-      <Select<CommanderType>
-        placeholder="중대장를 선택하세요"
+      <Select
+        placeholder="중대장을 선택하세요"
         onChange={(value) => onChange?.(value)}
-        allowClear
-        options={[
-          { label: '본부중대장', value: 'headquarters' },
-          { label: '경비중대장', value: 'security' },
-          { label: '탄약중대장', value: 'ammunition' },
-        ]}
+        options={options}
+        showSearch
+        filterOption={(input, option) =>
+          (option?.label as string).toLowerCase().includes(input.toLowerCase())
+        }
       />
     </Form.Item>
   );
