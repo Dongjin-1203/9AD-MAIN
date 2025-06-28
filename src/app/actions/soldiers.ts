@@ -266,7 +266,7 @@ export async function searchCommander(query: string) {
         ),
       ]),
     )
-    .select(['sn', 'name'])
+    .select(['sn', 'name', 'unit'])
     .execute();
 }
 
