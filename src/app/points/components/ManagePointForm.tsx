@@ -23,6 +23,7 @@ import { checkIfNco } from '../give/actions';
 import { UnitSelect } from '../components/UnitSelect';
 import type { UnitType } from '../components/UnitSelect';
 import { CommanderSelect } from '../components/commanderSelect';
+import type { CommanderInfo } from '../components/commanderSelect';
 import { searchCommander } from '@/app/actions/soldiers';
 import { LoadCommanders } from '@/app/actions';
 
@@ -87,6 +88,9 @@ export function ManagePointForm({ type }: ManagePointFormProps) {
   const [selectedUnit, setSelectedUnit] = useState<UnitType | undefined>(undefined);
   const [filterType, setFilterType] = useState<'all' | 'merit' | 'demerit'>('all');
   const [commanders, setCommanders] = useState<Commander[]>([]);
+  useEffect(() => {
+    (async () => setCommanders(await searchCommander('')))();
+  }, []);
   const [selectedCommander, setSelectedCommander] = useState<'headquarters' | 'security' | 'ammunition' | null>(null);
   const [approverId, setApproverId] = useState<string | undefined>();
   // const [commanders, setCommanders] = useState<Commander[]>([]);
@@ -193,49 +197,39 @@ export function ManagePointForm({ type }: ManagePointFormProps) {
 
 
   const handleSubmit = useCallback(
-    async (newForm: any) => {
+    async (values: any) => {
       await form.validateFields();
       setLoading(true);
 
       const idKey = type === 'request' ? 'giverIds' : 'receiverIds';
-      const idList: string[] = newForm[idKey];
+      const idList: string[] = values[idKey];
 
-      // 👉 approverId를 결정
-      let approverId: string | undefined;
-      if (type === 'request') {
-        const commanderData = await searchCommander(''); // 전체 Commander 불러오기
-        const matched = commanderData.find((c) => c.unit === selectedCommander);
-        approverId = matched?.sn;
-      }
-
-      const results = await Promise.all(
-        idList.map((id) =>
-          createPoint({
-            ...newForm,
-            [type === 'request' ? 'giverId' : 'receiverId']: id,
-            approverId: selectedCommander,
-            value: merit * newForm.value,
-            givenAt: newForm.givenAt.$d as Date,
-          }),
-        )
+      const promises = idList.map((id) =>
+        createPoint({
+          ...values,
+          // ① id 매핑
+          [type === 'request' ? 'giverId' : 'receiverId']: id,
+          // ② approverId(군번) 저장 – 요청(request)일 때만 필요
+          approverId: type === 'request' ? approverId : undefined,
+          value: merit * values.value,
+          givenAt: values.givenAt.$d as Date,
+        }),
       );
 
-      const hasError = results.some((res) => res.message);
-      if (hasError) {
-        message.error('일부 항목 부여에 실패했습니다.');
-      } else {
-        message.success(
-          type === 'request'
-            ? '상벌점 요청을 성공적으로 했습니다'
-            : '상벌점을 성공적으로 부여했습니다',
-        );
-        router.push('/points');
-      }
+      const results = await Promise.all(promises);
+      const hasError = results.some((r) => r.message);
+
+      hasError
+        ? message.error('일부 항목 부여에 실패했습니다.')
+        : message.success(type === 'request'
+            ? '상점 요청을 완료했습니다.'
+            : '상점을 부여했습니다.');
+
+      router.push('/points');
       setLoading(false);
     },
-    [router, merit, form, message, type, selectedCommander]
+    [approverId, merit, router, type],
   );
-
 
   return (
     <div className='px-4'>
@@ -262,12 +256,9 @@ export function ManagePointForm({ type }: ManagePointFormProps) {
         <Form.Item label="중대장 선택" colon={false}>
           <CommanderSelect
             commanders={commanders}
-            onChange={(value) => {
-              setSelectedCommander(value ?? null); // 중대장 단위로 저장
-              const matched = commanders.find((c) => c.unit === value);
-              const approver = matched?.sn;
-              setApproverId(approver);
-              form.setFieldValue('approverId', approver); // 폼에도 저장
+            onChange={(sn) => {
+              setApproverId(sn);            // 군번 저장
+              form.setFieldValue('approverId', sn); // 폼에도 반영
             }}
           />
         </Form.Item>
