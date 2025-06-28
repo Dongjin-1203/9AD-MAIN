@@ -11,8 +11,8 @@ export type CommanderSelectProps = {
 export function CommanderSelect({ onChange }: CommanderSelectProps) {
   return (
     <Form.Item
-      name="unit"
-      rules={[{ required: true, message: '중대를 선택해주세요' }]}
+      name="commander"
+      rules={[{ required: true, message: '중대장을 선택해주세요' }]}
     >
       <Select<CommanderType>
         placeholder="중대장를 선택하세요"
