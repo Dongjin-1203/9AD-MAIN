@@ -85,8 +85,10 @@ export function ManagePointForm({ type }: ManagePointFormProps) {
   const { message } = App.useApp();
   const [target, setTarget] = useState('');
   const [selectedUnit, setSelectedUnit] = useState<UnitType | undefined>(undefined);
-  const [selectedCommander, setSelectedCommander] = useState<CommanderType | undefined>(undefined);
   const [filterType, setFilterType] = useState<'all' | 'merit' | 'demerit'>('all');
+  const [commanders, setCommanders] = useState<Commander[]>([]);
+  const [selectedCommander, setSelectedCommander] = useState<'headquarters' | 'security' | 'ammunition' | null>(null);
+  const [approverId, setApproverId] = useState<string | undefined>();
   // const [commanders, setCommanders] = useState<Commander[]>([]);
 
   const meritTemplates = useMemo(() => pointTemplates.filter((t) => t.value > 0), []);
@@ -170,12 +172,15 @@ export function ManagePointForm({ type }: ManagePointFormProps) {
       setSearching(false);
       setOptions(value);
     });
+  }, [query, type, selectedUnit]);
 
-    searchFn(query, selectedCommander).then((value) => {
-      setSearching(false);
-      setOptions(value);
-    });
-  }, [query, type, selectedUnit, selectedCommander]);
+  useEffect(() => {
+    const fetch = async () => {
+      const result = await searchCommander('');
+      setCommanders(result);
+    };
+    fetch();
+  }, []);
 
   // useEffect(() => {
   //   const loadCommanders = async () => {
@@ -208,7 +213,7 @@ export function ManagePointForm({ type }: ManagePointFormProps) {
           createPoint({
             ...newForm,
             [type === 'request' ? 'giverId' : 'receiverId']: id,
-            approverId: type === 'request' ? approverId : undefined,
+            approverId: approverId,
             value: merit * newForm.value,
             givenAt: newForm.givenAt.$d as Date,
           }),
@@ -255,7 +260,16 @@ export function ManagePointForm({ type }: ManagePointFormProps) {
         </Form.Item>
 
         <Form.Item label="중대장 선택" colon={false}>
-          <CommanderSelect onChange={setSelectedCommander} />
+          <CommanderSelect
+            commanders={commanders}
+            onChange={(value) => {
+              setSelectedCommander(value ?? null); // 중대장 단위로 저장
+              const matched = commanders.find((c) => c.unit === value);
+              const approver = matched?.sn;
+              setApproverId(approver);
+              form.setFieldValue('approverId', approver); // 폼에도 저장
+            }}
+          />
         </Form.Item>
 
         <Form.Item label='보기 옵션' colon={false}>
