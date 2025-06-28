@@ -270,37 +270,6 @@ export async function searchCommander(query: string) {
     .execute();
 }
 
-export async function searchApprover(query: string = '') {
-  const current = await currentSoldier();
-  return kysely
-    .selectFrom('soldiers')
-    .where((eb) =>
-      eb.and([
-        eb('type', '=', 'nco'),
-        eb('unit', '=', current.unit),
-        eb.or([
-          eb('sn', 'like', `%${query}%`),
-          eb('name', 'like', `%${query}%`),
-        ]),
-        eb.or([
-          eb('rejected_at', 'is not', null),
-          eb('verified_at', 'is not', null),
-        ]),
-        eb('deleted_at', 'is', null),
-        eb.exists(
-          eb
-            .selectFrom('permissions')
-            .whereRef('permissions.soldiers_id', '=', 'soldiers.sn')
-            .having('value', '=', 'Approver')
-            .select('permissions.value')
-            .groupBy('permissions.value')
-        ),
-      ])
-    )
-    .select(['sn', 'name'])
-    .execute();
-}
-
 export async function deleteSoldier({
   sn,
   value,

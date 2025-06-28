@@ -91,7 +91,7 @@ export function ManagePointForm({ type }: ManagePointFormProps) {
   useEffect(() => {
     (async () => setCommanders(await searchCommander('')))();
   }, []);
-  const [selectedCommander, setSelectedCommander] = useState<'headquarters' | 'security' | 'ammunition' | null>(null);
+  const [selectedCommander, setSelectedCommander] = useState<'headquarters' | 'security' | 'ammunition'>;
   const [approverId, setApproverId] = useState<string | undefined>();
   // const [commanders, setCommanders] = useState<Commander[]>([]);
 
