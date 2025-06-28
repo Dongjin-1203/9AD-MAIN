@@ -22,6 +22,8 @@ import { debounce } from 'lodash';
 import { checkIfNco } from '../give/actions';
 import { UnitSelect } from '../components/UnitSelect';
 import type { UnitType } from '../components/UnitSelect';
+import { CommanderSelect } from '../components/commanderSelect';
+import type { CommanderType } from '../components/commanderSelect';
 import { LoadCommanders } from '@/app/actions';
 
 // (1) Commander 타입 정의 추가
@@ -83,6 +85,7 @@ export function ManagePointForm({ type }: ManagePointFormProps) {
   const { message } = App.useApp();
   const [target, setTarget] = useState('');
   const [selectedUnit, setSelectedUnit] = useState<UnitType | undefined>(undefined);
+  const [selectedCommander, setSelectedCommander] = useState<UnitType | undefined>(undefined);
   const [filterType, setFilterType] = useState<'all' | 'merit' | 'demerit'>('all');
   const [commanders, setCommanders] = useState<Commander[]>([]);
 
@@ -238,7 +241,7 @@ export function ManagePointForm({ type }: ManagePointFormProps) {
         </Form.Item>
 
         <Form.Item label="중대장 선택" colon={false}>
-          <UnitSelect onChange={setSelectedUnit} />
+          <UnitSelect onChange={setSelectedCommander} />
         </Form.Item>
 
         <Form.Item label='보기 옵션' colon={false}>
