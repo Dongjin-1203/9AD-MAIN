@@ -246,7 +246,7 @@ export function ManagePointForm({ type }: ManagePointFormProps) {
         </Form.Item>
 
         <Form.Item label="중대장 선택" colon={false}>
-          <UnitSelect onChange={setSelectedCommander} />
+          <CommanderSelect onChange={setSelectedCommander} />
         </Form.Item>
 
         <Form.Item label='보기 옵션' colon={false}>
