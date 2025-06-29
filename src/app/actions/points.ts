@@ -172,14 +172,11 @@ export async function verifyPoint(
     return { message: '본 상벌점이 존재하지 않습니다' };
   }
 
-  // ✅ 현재 유저가 'Commander' 권한을 가지고 있는지 확인
   if (point.approver_id !== current.sn) {
     return { message: '본인에게 요청된 상벌점만 승인/반려 할 수 있습니다' };
   }
 
-
-  // ✅ 반려할 경우 사유 필수
-  if (!value && !rejectReason) {
+  if (!value && (!rejectReason || !rejectReason.trim())) {
     return { message: '반려 사유를 입력해주세요' };
   }
 
@@ -187,11 +184,21 @@ export async function verifyPoint(
     await kysely
       .updateTable('points')
       .where('id', '=', Number(pointId))
-      .set({
-        status: value ? 'approved' : 'rejected',
-        rejected_reason: value ? undefined : rejectReason,
-        rejected_at: value ? null : new Date(),
-      } as any)
+      .set(
+        value
+          ? {
+              status: 'approved',
+              approved_at: new Date(),
+              rejected_reason: null,
+              rejected_at: null,
+            }
+          : {
+              status: 'rejected',
+              rejected_at: new Date(),
+              rejected_reason: rejectReason.trim(),
+              approved_at: null,
+            },
+      )
       .executeTakeFirstOrThrow();
 
     return { message: null };
@@ -199,6 +206,7 @@ export async function verifyPoint(
     return { message: '승인/반려에 실패하였습니다' };
   }
 }
+
 
 export async function fetchPointSummary(sn: string) {
   const pointsQuery = kysely.selectFrom('points').where('receiver_id', '=', sn);
@@ -235,15 +243,13 @@ export async function createPoint({
   reason,
   givenAt,
   approverId,
-  rejected_reason = null
 }: {
   value:       number;
   giverId?:    string | null;
   receiverId?: string | null;
   reason:      string;
   givenAt:     Date;
-  approverId?: string | null;
-  rejected_reason?: string | null;
+  approverId?: string;
 }) {
   if (reason.trim() === '') {
     return { message: '상벌점 수여 이유를 작성해주세요' };
@@ -289,7 +295,6 @@ export async function createPoint({
           receiver_id: sn!,
           giver_id:    giverId!,
           approver_id: approverId ?? null ,
-          rejected_reason: rejected_reason,
           value,
           reason,
           status: 'pending',
@@ -314,7 +319,6 @@ export async function createPoint({
           receiver_id: receiverId!,
           giver_id:    sn!,
           approver_id: approverId ?? null,
-          rejected_reason: rejected_reason,
           value,
           reason,
           status: isCommander ? 'approved' : 'pending',
