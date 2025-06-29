@@ -183,46 +183,44 @@ export function ManagePointForm({ type }: ManagePointFormProps) {
     fetch();
   }, []);
 
-  const handleSubmit = useCallback(
-    async (values: any) => {
-      await form.validateFields();
-      setLoading(true);
+  const handleSubmit = useCallback(async (values: any) => {
+    await form.validateFields();
+    setLoading(true);
 
-      if (type === 'request' && !approverId) {
-        message.error('중대장을 선택해주세요');
-        setLoading(false);
-        return;
-      }
+    /** ✅ Commander(approver) 선택 여부 공통 체크 */
+    if (!approverId) {
+      message.error('중대장을 선택해주세요');
+      setLoading(false);
+      return;
+    }
 
-      const idKey = type === 'request' ? 'giverIds' : 'receiverIds';
-      const idList: string[] = values[idKey];
+    const idKey  = type === 'request' ? 'giverIds'   : 'receiverIds';
+    const mapKey = type === 'request' ? 'giverId'    : 'receiverId';
+    const idList: string[] = values[idKey];
 
-      const promises = idList.map((id) =>
+    const results = await Promise.all(
+      idList.map((id) =>
         createPoint({
           ...values,
-          // ① id 매핑
-          [type === 'request' ? 'giverId' : 'receiverId']: id,
-          // ② approverId(군번) 저장 – 요청(request)일 때만 필요
-          approverId: type === 'request' ? approverId! : undefined,
-          value: merit * values.value,
+          [mapKey]: id,
+          approverId,                // ✅ 두 type 모두 넘김
+          value:   merit * values.value,
           givenAt: values.givenAt.$d as Date,
         }),
-      );
+      ),
+    );
 
-      const results = await Promise.all(promises);
-      const hasError = results.some((r) => r.message);
+    const hasError = results.some((r) => r.message);
+    hasError
+      ? message.error('일부 항목 부여에 실패했습니다.')
+      : message.success(type === 'request'
+          ? '상점 요청을 완료했습니다.'
+          : '상점을 부여했습니다.');
 
-      hasError
-        ? message.error('일부 항목 부여에 실패했습니다.')
-        : message.success(type === 'request'
-            ? '상점 요청을 완료했습니다.'
-            : '상점을 부여했습니다.');
+    router.push('/points');
+    setLoading(false);
+  }, [approverId, merit, router, type]);
 
-      router.push('/points');
-      setLoading(false);
-    },
-    [approverId, merit, router, type],
-  );
 
   return (
     <div className='px-4'>

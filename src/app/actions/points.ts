@@ -303,7 +303,7 @@ export async function createPoint({
           status: 'pending',
           rejected_reason: null,
           rejected_at:   null,
-        })
+        } as any)
         .executeTakeFirstOrThrow();
       return { message: null };
     } catch (e) {
@@ -349,7 +349,7 @@ export async function createPoint({
           approved_at: isCommander ? new Date() : null,
           rejected_reason: null,
           rejected_at: null,
-        })
+        } as any)
         .executeTakeFirstOrThrow();
 
       return { message: null };
