@@ -250,6 +250,11 @@ export async function searchCommander(query: string) {
           eb('name', 'like', `%${query}%`),
         ]),
         eb.or([
+          eb('unit', '=', 'headquarters'),
+          eb('unit', '=', 'security'),
+          eb('unit', '=', 'ammunition'),
+        ]),
+        eb.or([
           eb('rejected_at', 'is not', null),
           eb('verified_at', 'is not', null),
         ]),

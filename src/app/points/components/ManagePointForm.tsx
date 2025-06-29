@@ -7,7 +7,6 @@ import {
 } from '@/app/actions';
 import {
   App,
-  AutoComplete,
   Button,
   DatePicker,
   Form,
@@ -25,7 +24,6 @@ import type { UnitType } from '../components/UnitSelect';
 import { CommanderSelect } from '../components/commanderSelect';
 import type { CommanderInfo } from '../components/commanderSelect';
 import { searchCommander } from '@/app/actions/soldiers';
-import { LoadCommanders } from '@/app/actions';
 
 // (1) Commander 타입 정의 추가
 type Commander = {
@@ -82,19 +80,14 @@ export function ManagePointForm({ type }: ManagePointFormProps) {
   const [query, setQuery] = useState('');
   const [options, setOptions] = useState<{ name: string; sn: string }[]>([]);
   const [loading, setLoading] = useState(false);
-  const [searching, setSearching] = useState(false);
+  const [setSearching] = useState(false);
   const { message } = App.useApp();
-  const [target, setTarget] = useState('');
+  const [setTarget] = useState('');
   const [selectedUnit, setSelectedUnit] = useState<UnitType | undefined>(undefined);
   const [filterType, setFilterType] = useState<'all' | 'merit' | 'demerit'>('all');
-  const [commanders, setCommanders] = useState<Commander[]>([]);
-  useEffect(() => {
-    (async () => setCommanders(await searchCommander('')))();
-  }, []);
-  const [selectedCommander, setSelectedCommander] = useState<'headquarters' | 'security' | 'ammunition'>;
+  const [commanders, setCommanders] = useState<CommanderInfo[]>([]);
   const [approverId, setApproverId] = useState<string | undefined>();
-  // const [commanders, setCommanders] = useState<Commander[]>([]);
-
+  
   const meritTemplates = useMemo(() => pointTemplates.filter((t) => t.value > 0), []);
   const demeritTemplates = useMemo(() => pointTemplates.filter((t) => t.value < 0), []);
 
@@ -180,21 +173,15 @@ export function ManagePointForm({ type }: ManagePointFormProps) {
 
   useEffect(() => {
     const fetch = async () => {
-      const result = await searchCommander('');
-      setCommanders(result);
+      const rawCommanders = await searchCommander('');
+      const filtered = rawCommanders.filter(
+        (c): c is CommanderInfo =>
+          c.unit === 'headquarters' || c.unit === 'security' || c.unit === 'ammunition'
+      );
+      setCommanders(filtered);
     };
     fetch();
   }, []);
-
-  // useEffect(() => {
-  //   const loadCommanders = async () => {
-  //     const data = await LoadCommanders();
-  //     console.log("불러온 중대장:", data); // 👈 실제 데이터 확인
-  //     setCommanders(data);
-  //   };
-  //   loadCommanders();
-  // }, []);
-
 
   const handleSubmit = useCallback(
     async (values: any) => {
