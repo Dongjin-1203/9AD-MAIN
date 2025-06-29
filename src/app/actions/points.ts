@@ -274,6 +274,9 @@ export async function createPoint({
     return { message: '대상이 존재하지 않습니다' };
   }
   if (type === 'enlisted') {
+    if (giverId === sn) {
+      return { message: '스스로에게 수여할 수 없습니다' };
+    }
     if (!approverId) {
       return { message: '중대장을 선택해주세요' };
     }
@@ -298,7 +301,9 @@ export async function createPoint({
           value,
           reason,
           status: 'pending',
-        } as any)
+          rejected_reason: null,
+          rejected_at:   null,
+        })
         .executeTakeFirstOrThrow();
       return { message: null };
     } catch (e) {
@@ -309,7 +314,6 @@ export async function createPoint({
 
   if (type === 'nco') {
     const isCommander = hasPermission(permissions, ['Commander']);
-
     if (!isCommander && !approverId) {
       return { message: '중대장을 선택해주세요' };
     }
@@ -338,14 +342,14 @@ export async function createPoint({
           given_at: givenAt,
           receiver_id: receiverId!,
           giver_id: sn!,
-          approver_id: resolvedApproverId,
+          approver_id: isCommander ? sn : approverId!,
           value,
           reason,
           status: isCommander ? 'approved' : 'pending',
           approved_at: isCommander ? new Date() : null,
           rejected_reason: null,
           rejected_at: null,
-        } as any)
+        })
         .executeTakeFirstOrThrow();
 
       return { message: null };
