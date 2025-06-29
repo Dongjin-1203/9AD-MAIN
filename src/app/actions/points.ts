@@ -195,7 +195,7 @@ export async function verifyPoint(
           : {
               status: 'rejected',
               rejected_at: new Date(),
-              rejected_reason: rejectReason.trim(),
+              rejected_reason: rejectReason!.trim(),
               approved_at: null,
             },
       )
