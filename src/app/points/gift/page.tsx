@@ -3,7 +3,6 @@
 import {
   createPoint,
   searchEnlisted,
-  searchNco,
 } from '@/app/actions';
 import {
   App,
@@ -14,17 +13,22 @@ import {
   Input,
   InputNumber,
   Select,
-  Typography
+  Typography,
 } from 'antd';
 import locale from 'antd/es/date-picker/locale/ko_KR';
 import { useCallback, useEffect, useMemo, useState } from 'react';
+import { useRouter } from 'next/navigation';
 import { debounce } from 'lodash';
 import dayjs from 'dayjs';
 import { UnitSelect } from '../components/UnitSelect';
 import type { UnitType } from '../components/UnitSelect';
+import { CommanderSelect } from '../components/commanderSelect';
+import type { CommanderInfo } from '../components/commanderSelect';
+import { searchCommander } from '@/app/actions/soldiers';
 
 export default function GiveMassPointPage() {
   const [form] = Form.useForm();
+  const router = useRouter();
   const [loading, setLoading] = useState(false);
   const [merit, setMerit] = useState<1 | -1>(1);
   const [selectedUnit, setSelectedUnit] = useState<UnitType | undefined>();
@@ -33,18 +37,18 @@ export default function GiveMassPointPage() {
   const [target, setTarget] = useState('');
   const [searching, setSearching] = useState(false);
   const { message } = App.useApp();
+  const [commanders, setCommanders] = useState<CommanderInfo[]>([]);
+  const [approverId, setApproverId] = useState<string | undefined>();
 
-  // 병사 검색 디바운스
-  const debouncedSearch = useMemo(() =>
-    debounce((value: string) => {
-      setQuery(value);
-    }, 300), []);
+  const debouncedSearch = useMemo(
+    () => debounce((value: string) => setQuery(value), 300),
+    []
+  );
 
   const handleSearch = (value: string) => {
     debouncedSearch(value);
   };
 
-  // 병사 목록 불러오기
   useEffect(() => {
     if (!selectedUnit) return;
     setSearching(true);
@@ -54,39 +58,51 @@ export default function GiveMassPointPage() {
     });
   }, [query, selectedUnit]);
 
-  const handleSubmit = async (values: any) => {
-    setLoading(true);
-
-    const payload = {
-      ...values,
-      givenAt: values.givenAt.$d as Date,
-      value: values.value * merit,
+  useEffect(() => {
+    const fetch = async () => {
+      const rawCommanders = await searchCommander('');
+      const filtered = rawCommanders.filter(
+        (c): c is CommanderInfo =>
+          c.unit === 'headquarters' ||
+          c.unit === 'security' ||
+          c.unit === 'ammunition'
+      );
+      setCommanders(filtered);
     };
+    fetch();
+  }, []);
 
-    console.log('🧪 values.value:', values.value, 'typeof:', typeof values.value);
-    console.log('🧪 payload.value:', payload.value, 'typeof:', typeof payload.value);
-    
-    try {
-        // createPoint(payload) 호출
-      } finally {
+  const handleSubmit = useCallback(
+    async (values: any) => {
+      await form.validateFields();
+      setLoading(true);
+
+      if (!approverId) {
+        message.error('중대장을 선택해주세요');
         setLoading(false);
+        return;
       }
 
-    try {
-      const { message: resultMessage } = await createPoint(payload);
+      const { message: err } = await createPoint({
+        ...values,
+        receiverId: values.receiverId,
+        approverId,
+        value: merit * values.value,
+        givenAt: values.givenAt.$d as Date,
+      });
 
-      if (resultMessage) {
-        message.error(resultMessage); // 실패 메시지
+      if (err) {
+        message.error(err);
       } else {
-        message.success('상벌점을 성공적으로 부여했습니다'); // 성공 메시지
-        form.resetFields(); // 폼 초기화
+        message.success('상벌점이 정상적으로 처리되었습니다.');
+        form.resetFields();
+        router.push('/points');
       }
-    } catch (e) {
-      message.error('예기치 못한 오류가 발생했습니다');
-    } finally {
+
       setLoading(false);
-    }
-  };
+    },
+    [approverId, merit, router]
+  );
 
   return (
     <div className="p-6 max-w-2xl mx-auto text-left">
@@ -111,13 +127,27 @@ export default function GiveMassPointPage() {
           <UnitSelect onChange={setSelectedUnit} />
         </Form.Item>
 
-        {/* 3. 수령자 선택 (AutoComplete) */}
+        {/* 3. 중대장 선택 */}
+        <Form.Item label="중대장 선택" colon={false}>
+          <CommanderSelect
+            commanders={commanders}
+            onChange={(sn) => {
+              setApproverId(sn);
+              form.setFieldValue('approverId', sn);
+            }}
+          />
+        </Form.Item>
+
+        {/* 4. 수령자 선택 */}
         <Form.Item
           name="receiverId"
           label={`수령자${target ? `: ${target}` : ''}`}
           rules={[
             { required: true, message: '수령자를 입력해주세요' },
-            { pattern: /^[0-9]{2}-[0-9]{5,8}$/, message: '잘못된 군번입니다' },
+            {
+              pattern: /^[0-9]{2}-[0-9]{5,8}$/,
+              message: '잘못된 군번입니다',
+            },
           ]}
         >
           <AutoComplete
@@ -141,14 +171,14 @@ export default function GiveMassPointPage() {
           </AutoComplete>
         </Form.Item>
 
-        {/* 4. 점수 입력 및 유형 */}
-        <Form.Item
-          label="점수 및 유형"
-          required
-          style={{ marginBottom: 0 }}
-        >
+        {/* 5. 점수 및 유형 */}
+        <Form.Item label="점수 및 유형" required style={{ marginBottom: 0 }}>
           <div style={{ display: 'flex', gap: '8px' }}>
-            <Form.Item name="value" noStyle rules={[{ required: true, message: '점수를 입력해주세요' }]}>
+            <Form.Item
+              name="value"
+              noStyle
+              rules={[{ required: true, message: '점수를 입력해주세요' }]}
+            >
               <InputNumber
                 min={1}
                 style={{ width: '50%' }}
@@ -166,7 +196,7 @@ export default function GiveMassPointPage() {
           </div>
         </Form.Item>
 
-        {/* 5. 사유 입력 */}
+        {/* 6. 사유 입력 */}
         <Form.Item
           name="reason"
           label="사유"
@@ -175,7 +205,7 @@ export default function GiveMassPointPage() {
           <Input.TextArea rows={4} placeholder="상벌점 부여 사유를 입력하세요" />
         </Form.Item>
 
-        {/* 6. 제출 */}
+        {/* 7. 제출 */}
         <Form.Item>
           <Button type="primary" htmlType="submit" loading={loading}>
             상벌점 부여
