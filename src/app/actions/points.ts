@@ -57,16 +57,16 @@ export async function LoadCommanders() {
 export async function fetchPendingPoints() {
   const current = await currentSoldier();
 
-  // (1) 중대장만 승인
   if (!hasPermission(current.permissions, ['Commander'])) return [];
 
-  /* (2) 승인-대기(pending)인 요청만 조회 + 이름 없으면 군번 사용 */
   return kysely
     .selectFrom('points as p')
-    .leftJoin('soldiers as g', 'p.giver_id',    'g.sn')   // 부여자
-    .leftJoin('soldiers as r', 'p.receiver_id', 'r.sn')   // 수령자
+    .leftJoin('soldiers as g', 'p.giver_id',    'g.sn')
+    .leftJoin('soldiers as r', 'p.receiver_id', 'r.sn')
     .where('p.approver_id', '=', current.sn)
-    .where('p.status', '=', 'pending')
+    .where('p.status',      '=', 'pending')
+
+    /* ✅ ❶ select 콜백 형태로 변경 */
     .select(eb => [
       'p.id',
       'p.value',
@@ -74,19 +74,23 @@ export async function fetchPendingPoints() {
       'p.given_at',
       'p.status',
       'p.rejected_reason',
-      // ✅ Kysely 0.27+ : coalesce는 배열 1개만 받음 + ref()로 감싸야 타입 OK
+
+      /* 이름이 없으면 군번으로 대체 */
       eb.fn.coalesce([
-        eb.ref('g.name'  as const),  // 이름이 null 이면
-        eb.ref('p.giver_id' as const) // 군번 사용
+        eb.ref('g.name'       as const),
+        eb.ref('p.giver_id'   as const),
       ]).as('giver'),
+
       eb.fn.coalesce([
-        eb.ref('r.name'      as const),
-        eb.ref('p.receiver_id' as const)
+        eb.ref('r.name'         as const),
+        eb.ref('p.receiver_id'  as const),
       ]).as('receiver'),
     ])
+
     .orderBy('p.given_at desc')
     .execute();
 }
+
 
 
 
