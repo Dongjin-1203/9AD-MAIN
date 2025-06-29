@@ -197,7 +197,7 @@ export function ManagePointForm({ type }: ManagePointFormProps) {
           // ① id 매핑
           [type === 'request' ? 'giverId' : 'receiverId']: id,
           // ② approverId(군번) 저장 – 요청(request)일 때만 필요
-          approverId: type === 'request' ? approverId : undefined,
+          approverId: type === 'request' ? approverId ?? null : null,
           value: merit * values.value,
           givenAt: values.givenAt.$d as Date,
         }),
