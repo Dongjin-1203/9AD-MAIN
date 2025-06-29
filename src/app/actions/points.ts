@@ -64,10 +64,9 @@ export async function fetchPendingPoints() {
     .leftJoin('soldiers as g', 'p.giver_id',    'g.sn')
     .leftJoin('soldiers as r', 'p.receiver_id', 'r.sn')
     .where('p.approver_id', '=', current.sn)
-    .where('p.status',      '=', 'pending')
-
-    /* ✅ ❶ select 콜백 형태로 변경 */
-    .select(eb => [
+    .where('p.status', '=', 'pending')
+    /* ✅ 콜백 스타일 */
+    .select(({ ref, fn }) => [
       'p.id',
       'p.value',
       'p.reason',
@@ -75,25 +74,13 @@ export async function fetchPendingPoints() {
       'p.status',
       'p.rejected_reason',
 
-      /* 이름이 없으면 군번으로 대체 */
-      eb.fn.coalesce([
-        eb.ref('g.name'       as const),
-        eb.ref('p.giver_id'   as const),
-      ]).as('giver'),
-
-      eb.fn.coalesce([
-        eb.ref('r.name'         as const),
-        eb.ref('p.receiver_id'  as const),
-      ]).as('receiver'),
+      // 이름이 null이면 군번을 사용
+      fn.coalesce(ref('g.name'), ref('p.giver_id')).as('giver'),
+      fn.coalesce(ref('r.name'), ref('p.receiver_id')).as('receiver'),
     ])
-
     .orderBy('p.given_at desc')
     .execute();
 }
-
-
-
-
 
 export async function fetchPointsCountsNco() {
   const { sn } = await currentSoldier();
