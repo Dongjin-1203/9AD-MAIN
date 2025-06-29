@@ -188,6 +188,12 @@ export function ManagePointForm({ type }: ManagePointFormProps) {
       await form.validateFields();
       setLoading(true);
 
+      if (type === 'request' && !approverId) {
+        message.error('중대장을 선택해주세요');
+        setLoading(false);
+        return;
+      }
+
       const idKey = type === 'request' ? 'giverIds' : 'receiverIds';
       const idList: string[] = values[idKey];
 
@@ -197,7 +203,7 @@ export function ManagePointForm({ type }: ManagePointFormProps) {
           // ① id 매핑
           [type === 'request' ? 'giverId' : 'receiverId']: id,
           // ② approverId(군번) 저장 – 요청(request)일 때만 필요
-          approverId: type === 'request' ? approverId ?? null : null,
+          approverId: type === 'request' ? approverId! : undefined,
           value: merit * values.value,
           givenAt: values.givenAt.$d as Date,
         }),

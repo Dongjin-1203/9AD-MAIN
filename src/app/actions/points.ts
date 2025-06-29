@@ -302,6 +302,7 @@ export async function createPoint({
         .executeTakeFirstOrThrow();
       return { message: null };
     } catch (e) {
+      console.error('❌ createPoint error:', e);
       return { message: '알 수 없는 오류가 발생했습니다' };
     }
   }
@@ -324,8 +325,17 @@ export async function createPoint({
           status: isCommander ? 'approved' : 'pending',
         } as any)
         .executeTakeFirstOrThrow();
+        console.log("📦 insert payload", {
+          giverId,
+          receiverId,
+          approverId,
+          value,
+          reason,
+          givenAt
+        });
       return { message: null };
     } catch (e) {
+      console.error('❌ createPoint error:', e);
       return { message: '알 수 없는 오류가 발생했습니다' };
     }
   }
