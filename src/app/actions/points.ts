@@ -309,31 +309,45 @@ export async function createPoint({
 
   if (type === 'nco') {
     const isCommander = hasPermission(permissions, ['Commander']);
+
     if (!isCommander && !approverId) {
       return { message: '중대장을 선택해주세요' };
     }
+
+    const resolvedApproverId = isCommander ? sn : approverId;
+
+    // 혹시라도 null일 경우를 막기 위한 추가 체크 (방어 코드)
+    if (!resolvedApproverId) {
+      return { message: '승인자 정보가 누락되었습니다.' };
+    }
+
     try {
+      console.log("📦 insert payload", {
+        giverId: sn,
+        receiverId,
+        approverId: resolvedApproverId,
+        value,
+        reason,
+        givenAt,
+        status: isCommander ? 'approved' : 'pending',
+      });
+
       await kysely
         .insertInto('points')
         .values({
-          given_at:    givenAt,
+          given_at: givenAt,
           receiver_id: receiverId!,
-          giver_id:    sn!,
-          approver_id:   isCommander ? sn : approverId!,
+          giver_id: sn!,
+          approver_id: resolvedApproverId,
           value,
           reason,
           status: isCommander ? 'approved' : 'pending',
-          approved_at:   isCommander ? new Date() : null,
+          approved_at: isCommander ? new Date() : null,
+          rejected_reason: null,
+          rejected_at: null,
         } as any)
         .executeTakeFirstOrThrow();
-        console.log("📦 insert payload", {
-          giverId,
-          receiverId,
-          approverId,
-          value,
-          reason,
-          givenAt
-        });
+
       return { message: null };
     } catch (e) {
       console.error('❌ createPoint error:', e);
