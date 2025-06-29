@@ -51,7 +51,7 @@ export default function ApprovalPage() {
       {points.map((p) => (
         <Card
           key={p.id}
-          title={`${p.giver_id} → ${p.receiver_id}`}
+          title={`${p.giver} → ${p.receiver}`}
           className="shadow-md rounded-2xl"
         >
           <p><strong>점수:</strong> {p.value}</p>

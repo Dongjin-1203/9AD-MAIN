@@ -57,28 +57,31 @@ export async function LoadCommanders() {
 export async function fetchPendingPoints() {
   const current = await currentSoldier();
 
-  // 중대장만 승인 가능
+  /* ① 중대장 권한 확인 */
   if (!hasPermission(current.permissions, ['Commander'])) {
-    return []; // 중대장이 아니면 빈 배열 반환
+    return [];                              // 중대장이 아니면 빈 배열
   }
 
-  // 중대장이 승인해야 하는 pending 상태 상점 리스트
+  /* ② 현재 중대장에게 올라온 pending 목록 + 이름 JOIN */
   return kysely
     .selectFrom('points as p')
-    .leftJoin('soldiers as g', 'p.giver_id', 'g.sn')       // giver (부여자)
-    .leftJoin('soldiers as r', 'p.receiver_id', 'r.sn')    // receiver (수령자)
-    .where('p.approver_id', '=', current.sn)
-    .where('status', '=', 'pending')
+    .leftJoin('soldiers as g', 'p.giver_id',    'g.sn')   // giver  (부여자)
+    .leftJoin('soldiers as r', 'p.receiver_id', 'r.sn')   // receiver(수령자)
+    .where('p.approver_id', '=', current.sn)              // 나에게 온 요청
+    .where('p.status', '=', 'pending')
     .select([
       'p.id',
-      'p.reason',
       'p.value',
+      'p.reason',
       'p.given_at',
       'p.status',
       'p.rejected_reason',
-      'g.name as giver_name',
-      'r.name as receiver_name',
+
+      /* 👉 이름이 null 이면 군번을 대신 사용 */
+      (eb) => eb.fn.coalesce<string>('g.name', 'p.giver_id').as('giver'),
+      (eb) => eb.fn.coalesce<string>('r.name', 'p.receiver_id').as('receiver'),
     ])
+    .orderBy('p.given_at desc')
     .execute();
 }
 
