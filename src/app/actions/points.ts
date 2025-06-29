@@ -249,7 +249,7 @@ export async function createPoint({
   receiverId?: string | null;
   reason:      string;
   givenAt:     Date;
-  approverId?: string;
+  approverId?: string | null;
 }) {
   if (reason.trim() === '') {
     return { message: '상벌점 수여 이유를 작성해주세요' };
@@ -274,8 +274,8 @@ export async function createPoint({
     return { message: '대상이 존재하지 않습니다' };
   }
   if (type === 'enlisted') {
-    if (giverId === sn) {
-      return { message: '스스로에게 수여할 수 없습니다' };
+    if (!approverId) {
+      return { message: '중대장을 선택해주세요' };
     }
     console.log("🔥 Payload to insert:", {
       given_at: givenAt,
@@ -294,7 +294,7 @@ export async function createPoint({
           given_at:    givenAt,
           receiver_id: sn!,
           giver_id:    giverId!,
-          approver_id: approverId ?? null ,
+          approver_id: approverId,
           value,
           reason,
           status: 'pending',
@@ -308,10 +308,10 @@ export async function createPoint({
   }
 
   if (type === 'nco') {
-    if (!hasPermission(permissions, ['Nco'])) {
-      return { message: '상벌점을 줄 권한이 없습니다' };
-    }
     const isCommander = hasPermission(permissions, ['Commander']);
+    if (!isCommander && !approverId) {
+      return { message: '중대장을 선택해주세요' };
+    }
     try {
       await kysely
         .insertInto('points')
@@ -319,10 +319,11 @@ export async function createPoint({
           given_at:    givenAt,
           receiver_id: receiverId!,
           giver_id:    sn!,
-          approver_id: approverId ?? null,
+          approver_id:   isCommander ? sn : approverId!,
           value,
           reason,
           status: isCommander ? 'approved' : 'pending',
+          approved_at:   isCommander ? new Date() : null,
         } as any)
         .executeTakeFirstOrThrow();
         console.log("📦 insert payload", {
