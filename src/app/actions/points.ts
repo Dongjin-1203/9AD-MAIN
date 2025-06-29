@@ -70,6 +70,7 @@ export async function fetchPendingPoints() {
       'p.id',
       'p.value',
       'p.reason',
+    
       'p.given_at',
       'p.status',
       'p.rejected_reason',
