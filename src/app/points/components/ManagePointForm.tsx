@@ -80,9 +80,9 @@ export function ManagePointForm({ type }: ManagePointFormProps) {
   const [query, setQuery] = useState('');
   const [options, setOptions] = useState<{ name: string; sn: string }[]>([]);
   const [loading, setLoading] = useState(false);
-  const [setSearching] = useState(false);
+  const [searching, setSearching] = useState(false);
   const { message } = App.useApp();
-  const [setTarget] = useState('');
+  const [target, setTarget] = useState('');
   const [selectedUnit, setSelectedUnit] = useState<UnitType | undefined>(undefined);
   const [filterType, setFilterType] = useState<'all' | 'merit' | 'demerit'>('all');
   const [commanders, setCommanders] = useState<CommanderInfo[]>([]);
