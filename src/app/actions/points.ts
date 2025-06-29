@@ -235,7 +235,7 @@ export async function createPoint({
   reason,
   givenAt,
   approverId,
-  reject_reason = null
+  rejected_reason = null
 }: {
   value:       number;
   giverId?:    string | null;
@@ -243,7 +243,7 @@ export async function createPoint({
   reason:      string;
   givenAt:     Date;
   approverId?: string | null;
-  reject_reason?: string | null;
+  rejected_reason?: string | null;
 }) {
   if (reason.trim() === '') {
     return { message: '상벌점 수여 이유를 작성해주세요' };
@@ -289,7 +289,7 @@ export async function createPoint({
           receiver_id: sn!,
           giver_id:    giverId!,
           approver_id: approverId ?? null ,
-          reject_reason: reject_reason,
+          rejected_reason: rejected_reason,
           value,
           reason,
           status: 'pending',
@@ -314,7 +314,7 @@ export async function createPoint({
           receiver_id: receiverId!,
           giver_id:    sn!,
           approver_id: approverId ?? null,
-          reject_reason: reject_reason,
+          rejected_reason: rejected_reason,
           value,
           reason,
           status: isCommander ? 'approved' : 'pending',
